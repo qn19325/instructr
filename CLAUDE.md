@@ -116,7 +116,7 @@ Key HMRC API resource types to keep in mind when naming and structuring data:
 
 | Layer | Choice |
 |---|---|
-| Framework | Next.js 15 (App Router) + TypeScript |
+| Framework | Next.js 16 (App Router) + TypeScript |
 | Database | Neon (serverless PostgreSQL) |
 | ORM | Drizzle ORM |
 | Auth | Clerk |
@@ -147,21 +147,38 @@ Key HMRC API resource types to keep in mind when naming and structuring data:
 
 The application is built incrementally, one technology layer at a time. Each phase produces a deployable checkpoint.
 
+Detailed step-by-step implementation plans live in the wiki at `/Users/joshuahall/Documents/business-vault/wiki/topics/`.
+
+### Current status
+
+**Active phase: A — UI Shell**
+
+| Step | Status |
+|------|--------|
+| A1 — Bootstrap Next.js project | ✅ Done |
+| A2 — Version control (GitHub) | ✅ Done |
+| A3 — Clean up boilerplate | Pending |
+| A4 — App layout + navigation | Pending |
+| A5 — Mock data | Pending |
+| A6 — Client list page (`/clients`) | Pending |
+| A7 — Client detail page (`/clients/[id]`) | Pending |
+| A8 — Deadline calendar page (`/calendar`) | Pending |
+| A9 — Deploy to Vercel | Pending |
+
+Detailed plan: `wiki/topics/phase-a-implementation.md`
+
+---
+
 ### Phase A — UI Shell (React + Next.js)
 
 **Goal:** Full application structure is navigable with hardcoded data. Nothing persists.
 
 What gets built:
-- Next.js 15 project with TypeScript + Tailwind CSS
+- Next.js 16 project with TypeScript + Tailwind CSS
 - Client list page (mock data)
 - Individual client view with tax return status
 - Deadline calendar view
 - Basic navigation and layout, deployed to Vercel
-
-Bootstrap command:
-```
-npx create-next-app@latest business-application --typescript --tailwind --app --src-dir
-```
 
 **New concepts introduced:** React component model, Next.js App Router routing (folders = routes), server vs client components, TypeScript in JSX props.
 
