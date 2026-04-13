@@ -28,7 +28,7 @@ You are acting as a **senior engineer and mentor**, not a code writer. Joshua is
 
 A Phase 1 internal web application for Lara Warwick, a UK chartered accountant, to manage client tax returns across her practice. It is used with real clients from day one.
 
-This is a **workflow management tool**, not a filing tool. It manages the work *around* submitting tax returns — document collection, deadlines, client communication, and sign-off. Actual filing stays in Lara's existing software (TaxCalc, HMRC portal).
+This is a **workflow management tool**, not a filing tool. It manages the work _around_ submitting tax returns — document collection, deadlines, client communication, and sign-off. Actual filing stays in Lara's existing software (TaxCalc, HMRC portal).
 
 The longer-term goal is to productise this as B2B SaaS for UK chartered accountants (Phase 2). Phase 1 is the validation vehicle.
 
@@ -39,6 +39,7 @@ The longer-term goal is to productise this as B2B SaaS for UK chartered accounta
 **Lara Warwick** — chartered accountant, co-founder. She is the sole practitioner user in Phase 1. Her clients interact with the client-facing portal only (document upload, approval).
 
 There are two distinct roles:
+
 - **Accountant** (Lara) — manages clients, tracks deadlines, reviews documents, requests sign-off
 - **Client** — uploads documents, reviews draft return, gives approval
 
@@ -56,21 +57,21 @@ The UK tax year runs **6 April to 5 April** (not calendar year). Tax year 2025/2
 
 Lara's practice has clients in both regimes simultaneously:
 
-| Regime | Who | Filing |
-|--------|-----|--------|
-| **SA100 (Self Assessment)** | All clients not yet mandated onto MTD | Annual return, deadline 31 January |
-| **MTD ITSA** | Sole traders + landlords with income >£50k (mandate from April 2026), >£30k (April 2027), >£20k (April 2028) | 4 quarterly updates + Final Declaration by 31 Jan |
+| Regime                      | Who                                                                                                          | Filing                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
+| **SA100 (Self Assessment)** | All clients not yet mandated onto MTD                                                                        | Annual return, deadline 31 January                |
+| **MTD ITSA**                | Sole traders + landlords with income >£50k (mandate from April 2026), >£30k (April 2027), >£20k (April 2028) | 4 quarterly updates + Final Declaration by 31 Jan |
 
 Phase 1 must handle both regimes at the same time.
 
 ### MTD ITSA Quarterly Deadlines
 
-| Quarter | Period | Deadline |
-|---------|--------|----------|
-| Q1 | Apr – Jul | 7 August |
-| Q2 | Apr – Oct | 7 November |
-| Q3 | Apr – Jan | 7 February |
-| Q4 / EOPS | Full year | 7 May |
+| Quarter   | Period    | Deadline   |
+| --------- | --------- | ---------- |
+| Q1        | Apr – Jul | 7 August   |
+| Q2        | Apr – Oct | 7 November |
+| Q3        | Apr – Jan | 7 February |
+| Q4 / EOPS | Full year | 7 May      |
 
 Quarterly updates are **cumulative year-to-date**, not quarter-in-isolation.
 
@@ -93,15 +94,15 @@ Quarterly updates are **cumulative year-to-date**, not quarter-in-isolation.
 
 ### In Scope
 
-| Feature | Pain point addressed |
-|---------|---------------------|
-| Client list with tax return status per tax year | Practice-wide deadline visibility |
-| Document collection checklist per client | Track what has / hasn't been received |
-| Deadline calendar + alerts | SA100 annual + MTD quarterly deadlines across all clients |
-| Client portal — document upload | Reduce email chasing |
-| Client approval / sign-off workflow | Written approval before filing; audit trail |
-| Structured data entry per client per tax year | Organise income data ahead of filing in TaxCalc |
-| Notes and audit trail per client | Workflow continuity, compliance record |
+| Feature                                         | Pain point addressed                                      |
+| ----------------------------------------------- | --------------------------------------------------------- |
+| Client list with tax return status per tax year | Practice-wide deadline visibility                         |
+| Document collection checklist per client        | Track what has / hasn't been received                     |
+| Deadline calendar + alerts                      | SA100 annual + MTD quarterly deadlines across all clients |
+| Client portal — document upload                 | Reduce email chasing                                      |
+| Client approval / sign-off workflow             | Written approval before filing; audit trail               |
+| Structured data entry per client per tax year   | Organise income data ahead of filing in TaxCalc           |
+| Notes and audit trail per client                | Workflow continuity, compliance record                    |
 
 ### Explicitly Out of Scope — Phase 1
 
@@ -117,6 +118,7 @@ Quarterly updates are **cumulative year-to-date**, not quarter-in-isolation.
 Phase 1 does not submit to HMRC. Phase 2 does. The data model for income, expenses, and tax data **must be structured to eventually map to HMRC API payloads** — design for this without building the integration yet.
 
 Key HMRC API resource types to keep in mind when naming and structuring data:
+
 - `self-employment` (SA103)
 - `uk-property` (SA105)
 - `savings-accounts`, `dividends-from-uk-companies` (investment income)
@@ -127,15 +129,15 @@ Key HMRC API resource types to keep in mind when naming and structuring data:
 
 ## Tech Stack
 
-| Layer | Choice |
-|---|---|
-| Framework | Next.js 16 (App Router) + TypeScript |
-| Database | Neon (serverless PostgreSQL) |
-| ORM | Drizzle ORM |
-| Auth | Clerk |
-| File storage | Cloudflare R2 |
-| Email | Resend + React Email |
-| Hosting | Vercel |
+| Layer        | Choice                               |
+| ------------ | ------------------------------------ |
+| Framework    | Next.js 16 (App Router) + TypeScript |
+| Database     | Neon (serverless PostgreSQL)         |
+| ORM          | Drizzle ORM                          |
+| Auth         | Clerk                                |
+| File storage | Cloudflare R2                        |
+| Email        | Resend + React Email                 |
+| Hosting      | Vercel                               |
 
 ### Why These Choices
 
@@ -162,6 +164,29 @@ Key HMRC API resource types to keep in mind when naming and structuring data:
 
 ---
 
+## Common Commands
+
+When asked to "lint the codebase" or "check the code", run these in order:
+
+```
+npm run format:check   # Prettier — reports formatting issues
+npm run lint           # ESLint — reports code quality issues
+```
+
+To fix formatting automatically:
+
+```
+npm run format         # Rewrites files in place
+```
+
+To check everything passes before shipping:
+
+```
+npm run build          # Includes ESLint; fails on any error
+```
+
+---
+
 ## Build Phases
 
 The application is built incrementally, one technology layer at a time. Each phase produces a deployable checkpoint.
@@ -172,17 +197,17 @@ Detailed step-by-step implementation plans live in the wiki at `/Users/joshuahal
 
 **Active phase: A — UI Shell**
 
-| Step | Status |
-|------|--------|
-| A1 — Bootstrap Next.js project | ✅ Done |
-| A2 — Version control (GitHub) | ✅ Done |
-| A3 — Clean up boilerplate | Pending |
-| A4 — App layout + navigation | Pending |
-| A5 — Mock data | Pending |
-| A6 — Client list page (`/clients`) | Pending |
+| Step                                      | Status  |
+| ----------------------------------------- | ------- |
+| A1 — Bootstrap Next.js project            | ✅ Done |
+| A2 — Version control (GitHub)             | ✅ Done |
+| A3 — Clean up boilerplate                 | ✅ Done |
+| A4 — App layout + navigation              | ✅ Done |
+| A5 — Mock data                            | Pending |
+| A6 — Client list page (`/clients`)        | Pending |
 | A7 — Client detail page (`/clients/[id]`) | Pending |
 | A8 — Deadline calendar page (`/calendar`) | Pending |
-| A9 — Deploy to Vercel | Pending |
+| A9 — Deploy to Vercel                     | Pending |
 
 Detailed plan: `wiki/topics/phase-a-implementation.md`
 
@@ -193,6 +218,7 @@ Detailed plan: `wiki/topics/phase-a-implementation.md`
 **Goal:** Full application structure is navigable with hardcoded data. Nothing persists.
 
 What gets built:
+
 - Next.js 16.2.3 project with TypeScript + Tailwind CSS
 - Client list page (mock data)
 - Individual client view with tax return status
@@ -208,6 +234,7 @@ What gets built:
 **Goal:** Data persists. Lara can add clients and set statuses in a real database.
 
 What gets built:
+
 - Neon PostgreSQL database connected to the app
 - Drizzle schema: `practice`, `client`, `tax_return`, `deadline` tables — all scoped by `practice_id`
 - Mock data replaced with real database reads
@@ -222,6 +249,7 @@ What gets built:
 **Goal:** Secure, role-separated app safe to use with real clients.
 
 What gets built:
+
 - Clerk integrated into the app
 - Lara (accountant) signs in with email/password → full dashboard
 - Clients authenticate via magic link (email OTP) → client portal only
@@ -236,6 +264,7 @@ What gets built:
 **Goal:** Full Phase 1a feature scope complete. Clients upload documents; Lara is notified; deadline alerts automated.
 
 What gets built:
+
 - Cloudflare R2 bucket for document storage
 - Client portal: clients upload tax documents (P60, bank statements, etc.)
 - Document checklist in Lara's dashboard shows what has been received
@@ -252,6 +281,7 @@ What gets built:
 **Goal:** AI prepares draft tax returns from client documents; Lara reviews, adjusts, and submits. This changes the unit economics of the practice.
 
 What gets built:
+
 - Document extraction pipeline — uploaded PDFs and images parsed into structured income/expense records
 - Expense allowability engine — each expense classified against UK tax legislation (ITTOIA 2005 "wholly and exclusively" test); output is `allowed / disallowed / partial / needs-review` with plain-English reason and legislative citation
 - SA100 box mapping — classified figures mapped to correct SA100 boxes and supplementary pages
@@ -264,4 +294,3 @@ What gets built:
 **New concepts introduced:** LLM API integration, document extraction / OCR, confidence scoring, working paper generation.
 
 **Regulatory note:** The working paper trail (every figure traceable to source document and legislative rule) is a professional obligation under ICAEW AI guidance, not just good product design. Every figure must be explainable before Lara can sign off.
-
