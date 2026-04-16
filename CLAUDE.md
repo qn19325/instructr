@@ -162,6 +162,12 @@ Key HMRC API resource types to keep in mind when naming and structuring data:
 
 1. **Prefer composable, reusable components over one-off implementations.** Build components with future reuse in mind — accept props for customisation rather than hardcoding values, and keep components focused on a single responsibility.
 
+2. **Use string union types, not enums.** Enums add runtime overhead and require conversion when data arrives from a database or API (which it always will). Union types are zero-cost at runtime, align naturally with string data, and are immediately readable at the usage site. Example: `type Status = 'not_started' | 'in_progress'` not `enum Status { not_started, in_progress }`.
+
+3. **Export only at the point of need.** Do not export types, functions, or constants speculatively. Export when something is actually imported elsewhere. Unused exports create noise and the illusion of support for things that aren't implemented.
+
+4. **Add fields to types and interfaces when they are needed, not before.** Speculative fields accumulate into dead weight and obscure what is actually supported. The exception: a field whose absence would force a breaking change later (e.g. `id` on an entity used for routing). Test: does the current step break without this field? If no, leave it out.
+
 ---
 
 ## Common Commands
