@@ -162,7 +162,7 @@ Key HMRC API resource types to keep in mind when naming and structuring data:
 
 1. **Prefer composable, reusable components over one-off implementations.** Build components with future reuse in mind — accept props for customisation rather than hardcoding values, and keep components focused on a single responsibility.
 
-2. **Use string union types, not enums.** Enums add runtime overhead and require conversion when data arrives from a database or API (which it always will). Union types are zero-cost at runtime, align naturally with string data, and are immediately readable at the usage site. Example: `type Status = 'not_started' | 'in_progress'` not `enum Status { not_started, in_progress }`.
+2. **Use the const object pattern for enum-like types.** Prefer a const object paired with a derived type alias over TypeScript enums or plain union types. This gives dot-access syntax at the call site (`Status.filed`), zero runtime cost, and string values that round-trip cleanly from a database or API without conversion. Pattern: `export const Status = { filed: 'filed', ... } as const` + `type Status = (typeof Status)[keyof typeof Status]`. Note: switching to TypeScript string enums is worth reconsidering if the codebase grows and the team has a strong preference — revisit this decision before Phase B.
 
 3. **Export only at the point of need.** Do not export types, functions, or constants speculatively. Export when something is actually imported elsewhere. Unused exports create noise and the illusion of support for things that aren't implemented.
 

@@ -23,7 +23,7 @@ export interface Client {
   regimeType: Regime;
 }
 
-interface TaxReturn {
+export interface TaxReturn {
   deadline: Date;
   status: Status;
   startTaxYear: number;
