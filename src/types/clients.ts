@@ -16,7 +16,7 @@ type Status = (typeof Status)[keyof typeof Status];
 
 export interface Client {
   id: string;
-  nINumber: string; // e.g. AB 12 34 56 C
+  niNumber: string; // e.g. AB 12 34 56 C
   name: string;
   email: string;
   taxReturns: TaxReturn[];

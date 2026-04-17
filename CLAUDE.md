@@ -211,7 +211,7 @@ Detailed step-by-step implementation plans live in the wiki at `/Users/joshuahal
 | A4 — App layout + navigation              | ✅ Done |
 | A5 — Mock data                            | ✅ Done |
 | A6 — Client list page (`/clients`)        | ✅ Done |
-| A7 — Client detail page (`/clients/[id]`) | Pending |
+| A7 — Client detail page (`/clients/[id]`) | ✅ Done |
 | A8 — Deadline calendar page (`/calendar`) | Pending |
 | A9 — Deploy to Vercel                     | Pending |
 

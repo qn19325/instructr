@@ -13,7 +13,7 @@ const statuses = [
 for (let i = 0; i < statuses.length; i++) {
   const client: Client = {
     id: `${i}`,
-    nINumber: `AB 00 00 0${i} C`,
+    niNumber: `AB 00 00 0${i} C`,
     name: `Client ${i}`,
     email: `client${i}@mail.com`,
     taxReturns: [
