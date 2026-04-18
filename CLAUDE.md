@@ -197,7 +197,14 @@ npm run build          # Includes ESLint; fails on any error
 
 The application is built incrementally, one technology layer at a time. Each phase produces a deployable checkpoint.
 
-Detailed step-by-step implementation plans live in the wiki at `/Users/joshuahall/Documents/business-vault/wiki/topics/`.
+Detailed step-by-step implementation plans and design references live in the wiki at `/Users/joshuahall/Documents/business-vault/wiki/topics/`.
+
+| Wiki page | What it covers |
+|---|---|
+| `wiki/topics/phase-a-implementation.md` | Step-by-step Phase A build plan |
+| `wiki/topics/application-build-phases.md` | High-level overview of all five phases (A–E) |
+| `wiki/topics/ui-design.md` | Design system: colour palette, typography, status pills, per-screen layout mockups |
+| `wiki/decisions/type-mapping-strategy.md` | Decision to defer api.types/models split to Phase B; explains the Omit patches in Phase A |
 
 ### Current status
 
@@ -216,6 +223,7 @@ Detailed step-by-step implementation plans live in the wiki at `/Users/joshuahal
 | A9 — Deploy to Vercel                     | Pending |
 
 Detailed plan: `wiki/topics/phase-a-implementation.md`
+Design: `wiki/topics/ui-design.md`
 
 ---
 
