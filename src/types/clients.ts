@@ -8,7 +8,7 @@ export const Status = {
   filed: 'filed',
 } as const;
 
-type Status = (typeof Status)[keyof typeof Status];
+export type Status = (typeof Status)[keyof typeof Status];
 export type Client = SA100Client | MTDClient;
 
 interface ClientBase {

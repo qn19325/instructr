@@ -212,7 +212,7 @@ Detailed step-by-step implementation plans live in the wiki at `/Users/joshuahal
 | A5 — Mock data                            | ✅ Done |
 | A6 — Client list page (`/clients`)        | ✅ Done |
 | A7 — Client detail page (`/clients/[id]`) | ✅ Done |
-| A8 — Deadline calendar page (`/calendar`) | Pending |
+| A8 — Deadline calendar page (`/calendar`) | ✅ Done |
 | A9 — Deploy to Vercel                     | Pending |
 
 Detailed plan: `wiki/topics/phase-a-implementation.md`
