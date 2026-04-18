@@ -37,7 +37,12 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           })}
         </tbody>
       </table>
-      <div>Notes</div>
+      <div>
+        <div className="border-b border-slate-200 pb-2 text-xs font-medium text-slate-400 uppercase">
+          Notes
+        </div>
+        <div className="mt-2 flex-1 overflow-y-auto bg-white p-2">Placeholder...</div>
+      </div>
     </div>
   );
 }

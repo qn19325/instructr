@@ -16,7 +16,7 @@ export default function ClientListItem({ id, name, regime, taxReturns }: Client)
       <td className="py-3 pr-5">{taxReturns[0].deadline.toDateString()}</td>
       <td className="inline-flex py-3 pr-5">
         <div
-          className={`my-auto mr-1 h-4 w-4 rounded-lg ${taxReturns[0].status === Status.filed ? 'bg-green-500' : 'bg-red-500'}`}
+          className={`my-auto mr-1 h-3 w-3 rounded-lg ${taxReturns[0].status === Status.filed ? 'bg-green-500' : 'bg-red-500'}`}
         ></div>
         <div>{taxReturns[0].status}</div>
       </td>
