@@ -20,21 +20,31 @@ export default function Card({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div>
-      <p onClick={() => setIsExpanded((isExpanded) => !isExpanded)}>{name}</p>
-      <p>{deadline}</p>
-      <p>{status}</p>
-      <p>{startTaxYear}</p>
-      <p>{type}</p>
-      {isExpanded &&
-        checkList.map((item) => {
-          return (
-            <div key={item.text}>
-              <div>{item.text}</div>
-              <div className={`${item.received ? 'bg-green-500' : 'bg-red-500'} h-4 w-4`}></div>
-            </div>
-          );
-        })}
-    </div>
+    <>
+      <tr
+        className="cursor-pointer border-b border-slate-100 transition-colors hover:bg-slate-50"
+        onClick={() => setIsExpanded((prev) => !prev)}
+      >
+        <td className="py-3 pr-5">{name}</td>
+        <td className="py-3 pr-5">{deadline}</td>
+        <td className="py-3 pr-5">{status}</td>
+        <td className="py-3 pr-5">{startTaxYear}</td>
+        <td className="py-3 pr-5">{type}</td>
+      </tr>
+      {isExpanded && (
+        <tr>
+          <td colSpan={5} className="pb-3">
+            {checkList.map((item) => (
+              <div key={item.text} className="flex items-center gap-2 py-1 text-sm text-slate-600">
+                <div
+                  className={`h-3 w-3 rounded-full ${item.received ? 'bg-green-500' : 'bg-red-500'}`}
+                ></div>
+                <div>{item.text}</div>
+              </div>
+            ))}
+          </td>
+        </tr>
+      )}
+    </>
   );
 }

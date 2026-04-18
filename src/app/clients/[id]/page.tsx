@@ -12,20 +12,31 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   }
 
   return (
-    <div>
-      <p>
+    <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
+      <div className="mb-6 text-xl font-semibold text-slate-900">
         {client.name} - {client.niNumber}
-      </p>
-      <div>
-        {client.taxReturns.map((taxReturn) => {
-          const taxReturnCardProps: TaxReturnCardProps = {
-            ...taxReturn,
-            name: client.name,
-            deadline: taxReturn.deadline.toLocaleDateString('en-GB'),
-          };
-          return <Card key={taxReturn.id} {...taxReturnCardProps} />;
-        })}
       </div>
+      <table>
+        <thead>
+          <tr className="border-b border-slate-200 text-left text-xs font-medium tracking-wide text-slate-400 uppercase">
+            <th className="pr-5 pb-2">Name</th>
+            <th className="pr-5 pb-2">Deadline</th>
+            <th className="pr-5 pb-2">Status</th>
+            <th className="pr-5 pb-2">Tax Year</th>
+            <th className="pr-5 pb-2">Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          {client.taxReturns.map((taxReturn) => {
+            const taxReturnCardProps: TaxReturnCardProps = {
+              ...taxReturn,
+              name: client.name,
+              deadline: taxReturn.deadline.toLocaleDateString('en-GB'),
+            };
+            return <Card key={taxReturn.id} {...taxReturnCardProps} />;
+          })}
+        </tbody>
+      </table>
       <div>Notes</div>
     </div>
   );
