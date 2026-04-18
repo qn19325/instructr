@@ -1,6 +1,7 @@
 'use client';
 
-import { MTDTaxReturn, SA100TaxReturn, Status } from '@/types/clients';
+import StatusBadge from '@/components/StatusBadge';
+import { MTDTaxReturn, SA100TaxReturn } from '@/types/clients';
 import { useState } from 'react';
 
 // TODO: remove this when we move to real data and update to internal models vs api models
@@ -27,11 +28,8 @@ export default function Card({
       >
         <td className="py-3 pr-5">{name}</td>
         <td className="py-3 pr-5">{deadline}</td>
-        <td className="inline-flex py-3 pr-5">
-          <div
-            className={`my-auto mr-1 h-3 w-3 rounded-full ${status === Status.filed ? 'bg-green-500' : 'bg-red-500'}`}
-          ></div>
-          <div>{status}</div>
+        <td className="py-3 pr-5">
+          <StatusBadge status={status} />
         </td>
         <td className="py-3 pr-5">{startTaxYear}</td>
         <td className="py-3 pr-5">{type}</td>

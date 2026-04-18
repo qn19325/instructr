@@ -2,7 +2,7 @@ import { getDeadlineEntries } from '@/lib/helpers';
 import { clients } from '@/lib/mock-data';
 import { DeadlineEntry } from '@/types/calendarModels';
 import { Fragment } from 'react';
-import { Status } from '@/types/clients';
+import StatusBadge from '@/components/StatusBadge';
 
 export default async function Page() {
   const pageData: DeadlineEntry[] = getDeadlineEntries(clients);
@@ -28,7 +28,7 @@ export default async function Page() {
   return (
     <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
       <div className="mb-6 text-xl font-semibold text-slate-900">Deadlines</div>
-      <table>
+      <table className="w-full">
         <thead>
           <tr className="border-b border-slate-200 text-left text-xs font-medium tracking-wide text-slate-400 uppercase">
             <th className="pr-5 pb-2">Name</th>
@@ -56,11 +56,8 @@ export default async function Page() {
                   <td className="py-3 pr-5">{entry.name}</td>
                   <td className="py-3 pr-5">{entry.deadline.toDateString()}</td>
                   <td className="py-3 pr-5">{entry.taxYearLabel}</td>
-                  <td className="inline-flex py-3 pr-5">
-                    <div
-                      className={`my-auto mr-1 h-3 w-3 rounded-lg ${entry.status === Status.filed ? 'bg-green-500' : 'bg-red-500'}`}
-                    ></div>
-                    <div>{entry.status}</div>
+                  <td className="py-3 pr-5">
+                    <StatusBadge status={entry.status} />
                   </td>
                 </tr>
               ))}

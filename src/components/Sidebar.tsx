@@ -3,19 +3,13 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-interface SidebarProps {
-  className?: string;
-}
-
-export default function Sidebar({ className }: SidebarProps) {
+export default function Sidebar() {
   const curPath = usePathname();
   const clientsPath = '/clients';
   const calendarPath = '/calendar';
 
   return (
-    <div
-      className={`${className || ''} flex w-56 flex-col gap-6 border-r border-slate-200 bg-white px-4 py-6`}
-    >
+    <div className="flex w-56 flex-col gap-6 border-r border-slate-200 bg-white px-4 py-6">
       <p className="text-xl font-semibold text-slate-900">Tax Practice</p>
       <Link
         href={clientsPath}

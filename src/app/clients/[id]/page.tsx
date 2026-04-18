@@ -16,7 +16,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
       <div className="mb-6 text-xl font-semibold text-slate-900">
         {client.name} - {client.niNumber}
       </div>
-      <table>
+      <table className="w-full">
         <thead>
           <tr className="border-b border-slate-200 text-left text-xs font-medium tracking-wide text-slate-400 uppercase">
             <th className="pr-5 pb-2">Name</th>
