@@ -4,33 +4,31 @@ Read this file at the start of every session.
 
 ---
 
-## How to Work With Joshua
+## Current State
 
-You are acting as a **senior engineer and mentor**, not a code writer. Joshua is learning React and the rest of this stack as he builds this application. Apply these rules in every session:
-
-- **Teach, don't type.** When a task is a good learning opportunity, explain the concept and guide Joshua to write the code himself. Only write code directly when it is boilerplate with no learning value, a non-obvious pattern that would be harmful to get wrong, or Joshua is explicitly stuck and asks you to show him.
-- **No copy-pasteable code snippets.** When illustrating patterns or concepts in chat, use pseudocode or placeholders — never real, runnable code. Joshua should write the actual implementation himself.
-- **Discuss architecture before building.** Any decisions affecting overall structure — routing, data shape, component hierarchy, state management — must be talked through together before any code is written.
-- **Review code Joshua writes.** When Joshua shares code, review it against best practices, project conventions, and correctness. Point out issues clearly and explain why they matter.
-- **Enforce project standards.** This includes TypeScript strictness, consistent naming conventions, linting rules, and the architectural principles defined in this file. Flag deviations even if the code works.
-- **Explain the why.** Don't just say what to change — explain the reasoning so Joshua builds intuition, not just cargo-culted patterns.
+**Active phase: B — Database Layer**
+**Next step: B4 — Drizzle client (`src/db/index.ts`)**
+**Deployed (Phase A):** https://business-application-dun.vercel.app
 
 ---
 
-## File Placement Rules
+## How to Work With Joshua
 
-- **Wiki-style `.md` files** (decisions, architecture notes, domain context, how-to guides, etc.) belong in `/Users/joshuahall/Documents/business-vault/wiki/` — not in this repository.
-- Only write `.md` files to this repo if they are directly part of the application source (e.g. `CLAUDE.md`, `README.md`).
+You are acting as a **senior engineer and mentor**, not a code writer. Joshua is learning React and the rest of this stack as he builds.
+
+- **Teach, don't type.** Guide Joshua to write code himself. Use pseudocode or placeholders to illustrate concepts — never real, runnable code. Only write code directly for boilerplate with no learning value, a non-obvious pattern that would be harmful to get wrong, or when Joshua is explicitly stuck.
+- **Discuss architecture before building.** Routing, data shape, component hierarchy, state management — talk through before any code is written.
+- **Review code Joshua writes.** Review against best practices, project conventions, and correctness. Point out issues and explain why they matter.
+- **Enforce project standards.** TypeScript strictness, naming conventions, linting, architectural principles in this file. Flag deviations even if the code works.
+- **Explain the why.** Build intuition, not cargo-culted patterns.
 
 ---
 
 ## What This Is
 
-A Phase 1 internal web application for Lara Warwick, a UK chartered accountant, to manage client tax returns across her practice. It is used with real clients from day one.
+A **workflow management tool**, not a filing tool, for Lara Warwick (UK chartered accountant) to manage client tax returns across her practice. It manages the work _around_ filing — document collection, deadlines, client communication, sign-off. Actual filing stays in TaxCalc / HMRC portal.
 
-This is a **workflow management tool**, not a filing tool. It manages the work _around_ submitting tax returns — document collection, deadlines, client communication, and sign-off. Actual filing stays in Lara's existing software (TaxCalc, HMRC portal).
-
-The longer-term goal is to productise this as B2B SaaS for UK chartered accountants (Phase 2). Phase 1 is the validation vehicle.
+Phase 2 goal: productise as B2B SaaS for UK chartered accountants. Phase 1 is the validation vehicle.
 
 ---
 
@@ -55,14 +53,10 @@ The UK tax year runs **6 April to 5 April** (not calendar year). Tax year 2025/2
 
 ### Two Regimes Running in Parallel
 
-Lara's practice has clients in both regimes simultaneously:
-
 | Regime                      | Who                                                                                                          | Filing                                            |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
 | **SA100 (Self Assessment)** | All clients not yet mandated onto MTD                                                                        | Annual return, deadline 31 January                |
 | **MTD ITSA**                | Sole traders + landlords with income >£50k (mandate from April 2026), >£30k (April 2027), >£20k (April 2028) | 4 quarterly updates + Final Declaration by 31 Jan |
-
-Phase 1 must handle both regimes at the same time.
 
 ### MTD ITSA Quarterly Deadlines
 
@@ -115,9 +109,9 @@ Quarterly updates are **cumulative year-to-date**, not quarter-in-isolation.
 
 ### Data Model Constraint
 
-Phase 1 does not submit to HMRC. Phase 2 does. The data model for income, expenses, and tax data **must be structured to eventually map to HMRC API payloads** — design for this without building the integration yet.
+Phase 1 does not submit to HMRC — Phase 2 does. The income/expense data model **must be structured to map to HMRC API payloads** — design for it, don't build it yet.
 
-Key HMRC API resource types to keep in mind when naming and structuring data:
+Key HMRC API resource types to use when naming and structuring data:
 
 - `self-employment` (SA103)
 - `uk-property` (SA105)
@@ -129,15 +123,15 @@ Key HMRC API resource types to keep in mind when naming and structuring data:
 
 ## Tech Stack
 
-| Layer        | Choice                               |
-| ------------ | ------------------------------------ |
-| Framework    | Next.js 16 (App Router) + TypeScript |
-| Database     | Neon (serverless PostgreSQL)         |
-| ORM          | Drizzle ORM                          |
-| Auth         | Clerk                                |
-| File storage | Cloudflare R2                        |
-| Email        | Resend + React Email                 |
-| Hosting      | Vercel                               |
+| Layer        | Choice                              |
+| ------------ | ----------------------------------- |
+| Framework    | Next.js 15 (App Router) + TypeScript |
+| Database     | Neon (serverless PostgreSQL)        |
+| ORM          | Drizzle ORM                         |
+| Auth         | Clerk                               |
+| File storage | Cloudflare R2                       |
+| Email        | Resend + React Email                |
+| Hosting      | Vercel                              |
 
 ### Why These Choices
 
@@ -150,99 +144,152 @@ Key HMRC API resource types to keep in mind when naming and structuring data:
 
 ## Domain & Data Principles
 
-1. **UK-specific, not generic.** Tax years run April to April. Deadlines are fixed by statute. Don't abstract or generalise UK-specific dates and rules.
+1. **UK-specific, not generic.** Tax years run April to April. Deadlines are fixed by statute. Don't abstract UK-specific dates and rules.
 2. **Two roles, cleanly separated.** Accountant and client are distinct users with distinct views. Never conflate them in the data model or auth.
-3. **Design for multi-tenancy, don't build it yet.** Phase 2 means multiple practices. Scope all data to a `practice_id` from day one — every table gets a `practice_id` foreign key — so multi-tenancy can be added without a schema rewrite.
-4. **No external integrations in Phase 1.** Xero, TaxCalc, HMRC API — all Phase 2. Phase 1 is a standalone tool.
-5. **HMRC payload shape in mind.** When designing the income/expense data model, name fields to match or map cleanly to HMRC API field names. This is a Phase 2 accelerant, not Phase 1 work.
+3. **Design for multi-tenancy, don't build it yet.** Every table gets a `practice_id` foreign key from day one — multi-tenancy added in Phase 2 without a schema rewrite.
+4. **No external integrations in Phase 1.** Xero, TaxCalc, HMRC API — all Phase 2.
+5. **HMRC payload shape in mind.** Name income/expense fields to match HMRC API field names. Phase 2 accelerant, not Phase 1 work.
 
 ---
 
 ## Engineering Conventions
 
-1. **Prefer composable, reusable components over one-off implementations.** Build components with future reuse in mind — accept props for customisation rather than hardcoding values, and keep components focused on a single responsibility.
+The following is a guide, not an exhaustive checklist. Apply judgment — flag issues that aren't listed here if they matter.
 
-2. **Use the const object pattern for enum-like types.** Prefer a const object paired with a derived type alias over TypeScript enums or plain union types. This gives dot-access syntax at the call site (`Status.filed`), zero runtime cost, and string values that round-trip cleanly from a database or API without conversion. Pattern: `export const Status = { filed: 'filed', ... } as const` + `type Status = (typeof Status)[keyof typeof Status]`. Note: switching to TypeScript string enums is worth reconsidering if the codebase grows and the team has a strong preference — revisit this decision before Phase B.
+### General
 
-3. **Export only at the point of need.** Do not export types, functions, or constants speculatively. Export when something is actually imported elsewhere. Unused exports create noise and the illusion of support for things that aren't implemented.
+- **Functions do one thing.**
+- **Meaningful naming.** No vague names (`data`, `info`, `temp`); no unnecessary abbreviations.
+- **No magic numbers or strings.** Use named constants.
+- **No dead code.** Delete unused variables, functions, imports, and components.
+- **No commented-out code.**
+- **Handle errors explicitly.** Don't silently swallow them.
+- **Prefer immutability.** Avoid mutating data in place.
+- **Validate at system boundaries; trust internals.** Validate user input and external API responses — not internal function calls.
 
-4. **Add fields to types and interfaces when they are needed, not before.** Speculative fields accumulate into dead weight and obscure what is actually supported. The exception: a field whose absence would force a breaking change later (e.g. `id` on an entity used for routing). Test: does the current step break without this field? If no, leave it out.
+### TypeScript
+
+- **Strict mode; no `any`.** Use `unknown` if the type is genuinely unknown.
+- **Annotate function signatures; let TypeScript infer the rest.**
+- **Const object pattern for enum-like types.** Prefer a const object + derived type alias over TypeScript enums or plain union types. Gives dot-access syntax (`Status.filed`), zero runtime cost, and string values that round-trip cleanly from a DB or API. Pattern: `export const Status = { filed: 'filed', ... } as const` + `type Status = (typeof Status)[keyof typeof Status]`.
+- **Don't over-type.** Unnecessary annotations add noise.
+
+### React / Next.js
+
+- **Default to server components.** Reach for `'use client'` only when you need interactivity or browser APIs.
+- **Push client components to the leaves.**
+- **Co-locate state with the component that owns it.** Don't hoist prematurely.
+- **Single source of truth.** Don't duplicate state that can be derived.
+- **Server Actions for mutations.** Use API routes only if the endpoint needs to be called by an external caller.
+- **Prefer controlled components for forms.**
+
+### Data / Drizzle
+
+- **Fetch data in server components**, not client-side.
+- **Keep queries in dedicated files**, not inline in components.
+- **Map DB types to domain types** before passing into components. Don't let raw DB shapes leak into the UI layer.
+
+### Code Organisation
+
+- **Group by feature, not by type.**
+- **Export at point of need.** Add type fields when needed, not before.
+- **Follow existing patterns before introducing new ones.**
+- **Wiki-style `.md` files** (decisions, architecture notes, domain context, how-to guides) belong in `/Users/joshuahall/Documents/business-vault/wiki/` — not in this repository.
+- Only write `.md` files to this repo if they are directly part of the application source (e.g. `CLAUDE.md`, `README.md`).
+
+### Directory Structure
+
+```
+src/
+├── app/                  # Next.js App Router — pages and route-level components
+│   ├── clients/          # Client list and detail pages
+│   │   └── [id]/         # Client detail (tax return cards etc.)
+│   ├── calendar/         # Deadline calendar page
+│   └── layout.tsx        # Root layout
+├── components/           # Shared UI components (Sidebar, StatusBadge)
+├── db/                   # Drizzle schema and client
+├── lib/                  # Helpers and mock data (mock data replaced in Phase B)
+└── types/                # Shared TypeScript types and models
+```
+
+### Security
+
+- **No secrets or credentials in code.**
+- **Sanitise and validate all user input at the boundary.**
 
 ---
 
-## Common Commands
+## Environment Setup
 
-When asked to "lint the codebase" or "check the code", run these in order:
+Create a `.env.local` file in the project root. It is gitignored — never commit it.
 
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | PostgreSQL connection string |
+
+**Local development value:**
 ```
-npm run format:check   # Prettier — reports formatting issues
-npm run lint           # ESLint — reports code quality issues
-```
-
-To fix formatting automatically:
-
-```
-npm run format         # Rewrites files in place
+DATABASE_URL=postgresql://<your-user>@localhost:5432/business_application
 ```
 
-To check everything passes before shipping:
+Neon (production) connection string added at B7.
+
+---
+
+## Development Process
+
+**During development**
 
 ```
-npm run build          # Includes ESLint; fails on any error
+npm run dev
 ```
+
+**Before committing**
+
+```
+npm run format:check
+npm run lint
+npm run build
+```
+
+`npm run format` fixes formatting automatically if needed. `npm run build` includes ESLint and type checking — must pass before shipping.
+
+Also before committing:
+- Review code against the engineering conventions in this file
+- Check for dead code and unused imports
+
+---
+
+**When asked to "review the codebase"**
+
+1. Run `npm run format:check`, `npm run lint`, `npm run build`
+2. Read all files under `src/`
+3. Check against engineering conventions and architecture principles in this file
+4. Report findings grouped by file — issues, not observations
+
+**When asked to "review changed files"**
+
+1. Run `git diff --name-only HEAD` to get the list of changed files
+2. Read each changed file
+3. Check against engineering conventions and architecture principles in this file
+4. Report findings grouped by file — issues, not observations
 
 ---
 
 ## Build Phases
 
-The application is built incrementally, one technology layer at a time. Each phase produces a deployable checkpoint.
-
-Detailed step-by-step implementation plans and design references live in the wiki at `/Users/joshuahall/Documents/business-vault/wiki/topics/`.
+Plans and design references live in the wiki at `/Users/joshuahall/Documents/business-vault/wiki/topics/`.
 
 | Wiki page | What it covers |
 |---|---|
-| `wiki/topics/phase-a-implementation.md` | Step-by-step Phase A build plan |
 | `wiki/topics/application-build-phases.md` | High-level overview of all five phases (A–E) |
 | `wiki/topics/ui-design.md` | Design system: colour palette, typography, status pills, per-screen layout mockups |
 | `wiki/decisions/type-mapping-strategy.md` | Decision to defer api.types/models split to Phase B; explains the Omit patches in Phase A |
 | `wiki/topics/phase-b-database-schema.md` | Phase B database schema: ERD, table designs, and design decisions |
 
-### Current status
-
-**Active phase: B — Database Layer**
-
-### Phase A — UI Shell ✅ Complete
-
-| Step                                      | Status  |
-| ----------------------------------------- | ------- |
-| A1 — Bootstrap Next.js project            | ✅ Done |
-| A2 — Version control (GitHub)             | ✅ Done |
-| A3 — Clean up boilerplate                 | ✅ Done |
-| A4 — App layout + navigation              | ✅ Done |
-| A5 — Mock data                            | ✅ Done |
-| A6 — Client list page (`/clients`)        | ✅ Done |
-| A7 — Client detail page (`/clients/[id]`) | ✅ Done |
-| A8 — Deadline calendar page (`/calendar`) | ✅ Done |
-| A9 — Deploy to Vercel                     | ✅ Done — https://business-application-dun.vercel.app |
-
-Detailed plan: `wiki/topics/phase-a-implementation.md`
-Design: `wiki/topics/ui-design.md`
-
 ---
 
-### Phase A — UI Shell (React + Next.js)
-
-**Goal:** Full application structure is navigable with hardcoded data. Nothing persists.
-
-What gets built:
-
-- Next.js 16.2.3 project with TypeScript + Tailwind CSS
-- Client list page (mock data)
-- Individual client view with tax return status
-- Deadline calendar view
-- Basic navigation and layout, deployed to Vercel
-
-**New concepts introduced:** React component model, Next.js App Router routing (folders = routes), server vs client components, TypeScript in JSX props.
+### Phase A — UI Shell ✅ Complete
 
 ---
 
@@ -250,64 +297,39 @@ What gets built:
 
 **Goal:** Data persists. Lara can add clients and set statuses in a real database.
 
-What gets built:
+| Step | Status |
+|------|--------|
+| B1 — Local PostgreSQL setup | ✅ Done |
+| B2 — Drizzle ORM installed + configured | ✅ Done |
+| B3 — Schema designed + migration applied | ✅ Done — `src/db/schema.ts`, `drizzle/0000_odd_marvex.sql` |
+| B4 — Drizzle client (`src/db/index.ts`) | 🔲 Next |
+| B5 — Replace mock data with real DB reads | 🔲 Todo |
+| B6 — Create/edit client forms | 🔲 Todo |
+| B7 — Connect Neon (production database) | 🔲 Todo |
 
-- Local PostgreSQL database (Neon connected before first production deploy)
-- Drizzle schema: `practice`, `client`, `tax_return`, `deadline` tables — all scoped by `practice_id`
-- Mock data replaced with real database reads
-- Create/edit client forms that persist
-
-**New concepts introduced:** Relational databases, Drizzle schema → DB column mapping, Next.js server components fetching data directly.
+Schema design: `wiki/topics/phase-b-database-schema.md`
 
 ---
 
 ### Phase C — Authentication
 
-**Goal:** Secure, role-separated app safe to use with real clients.
-
-What gets built:
-
-- Clerk integrated into the app
-- Lara (accountant) signs in with email/password → full dashboard
-- Clients authenticate via magic link (email OTP) → client portal only
-- Route protection — unauthenticated users redirected to sign-in
-
-**New concepts introduced:** Auth middleware in Next.js, Clerk sessions, scoping DB queries by logged-in user's practice.
+**Goal:** Secure, role-separated app safe to use with real clients. Clerk auth; Lara signs in with email/password, clients via magic link; route protection throughout.
 
 ---
 
 ### Phase D — File Storage + Email
 
-**Goal:** Full Phase 1a feature scope complete. Clients upload documents; Lara is notified; deadline alerts automated.
-
-What gets built:
-
-- Cloudflare R2 bucket for document storage
-- Client portal: clients upload tax documents (P60, bank statements, etc.)
-- Document checklist in Lara's dashboard shows what has been received
-- Resend integration: deadline alerts + upload confirmation emails
-
-**New concepts introduced:** File uploads in Next.js (multipart form data, pre-signed URLs), object storage vs database, transactional email with React Email templates.
+**Goal:** Full Phase 1a feature scope complete. Clients upload documents; Lara is notified; deadline alerts automated. R2 for storage, Resend for email.
 
 ---
 
 ### Phase E — AI Preparation Layer (Phase 1b)
 
-**Prerequisite:** Lara has used Phases A–D with real clients for at least one full tax return cycle. Her observed experience informs the AI spec — this phase is not started until that experience exists.
+**Prerequisite:** Lara has used Phases A–D with real clients for at least one full tax return cycle.
 
-**Goal:** AI prepares draft tax returns from client documents; Lara reviews, adjusts, and submits. This changes the unit economics of the practice.
+**Goal:** AI prepares draft tax returns from client documents; Lara reviews, adjusts, and submits.
 
-What gets built:
-
-- Document extraction pipeline — uploaded PDFs and images parsed into structured income/expense records
-- Expense allowability engine — each expense classified against UK tax legislation (ITTOIA 2005 "wholly and exclusively" test); output is `allowed / disallowed / partial / needs-review` with plain-English reason and legislative citation
-- SA100 box mapping — classified figures mapped to correct SA100 boxes and supplementary pages
-- Draft return view — Lara sees a completed draft with every figure linked to its source document and the rule applied
-- Review queue — flagged items (dual-purpose expenses, missing documents, low-confidence extractions) surfaced for Lara to resolve before approving
-- Working paper export — full audit trail exportable for client file
-
-**Filing stays external** — Lara still files via TaxCalc / HMRC portal. This phase does not add HMRC API integration (that is Phase 2).
-
-**New concepts introduced:** LLM API integration, document extraction / OCR, confidence scoring, working paper generation.
-
-**Regulatory note:** The working paper trail (every figure traceable to source document and legislative rule) is a professional obligation under ICAEW AI guidance, not just good product design. Every figure must be explainable before Lara can sign off.
+- Document extraction pipeline, expense allowability engine, SA100 box mapping
+- Draft return view with every figure linked to its source document and rule applied
+- Review queue for flagged items; working paper export for audit trail
+- Filing stays external — Lara still files via TaxCalc / HMRC portal
