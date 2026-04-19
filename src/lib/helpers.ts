@@ -6,7 +6,7 @@ export function getDeadlineEntries(clients: Client[]): DeadlineEntry[] {
     return client.taxReturns.map((taxReturn) => {
       if (taxReturn.type === 'MTD') {
         return {
-          name: client.name,
+          name: `${client.firstName} ${client.lastName}`,
           id: taxReturn.id,
           deadline: taxReturn.deadline,
           status: taxReturn.status,
@@ -18,7 +18,7 @@ export function getDeadlineEntries(clients: Client[]): DeadlineEntry[] {
       }
 
       return {
-        name: client.name,
+        name: `${client.firstName} ${client.lastName}`,
         id: taxReturn.id,
         deadline: taxReturn.deadline,
         status: taxReturn.status,

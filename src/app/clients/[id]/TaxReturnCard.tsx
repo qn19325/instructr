@@ -24,15 +24,17 @@ export default function Card(props: TaxReturnCardProps) {
           <StatusBadge status={props.status} />
         </td>
         <td className="py-3 pr-5">{props.startTaxYear}</td>
-        <td className="py-3 pr-5">{props.type === 'MTD' ? `${props.type} - ${props.submissionType}` : props.type}</td>
+        <td className="py-3 pr-5">
+          {props.type === 'MTD' ? `${props.type} - ${props.submissionType}` : props.type}
+        </td>
       </tr>
       {isExpanded && (
         <tr>
           <td colSpan={5} className="pb-3">
-            {props.checkList.map((item) => (
-              <div key={item.text} className="flex items-center gap-2 py-1 text-sm text-slate-600">
+            {props.checkList.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2 py-1 text-sm text-slate-600">
                 <div
-                  className={`h-3 w-3 rounded-full ${item.received ? 'bg-green-500' : 'bg-red-500'}`}
+                  className={`h-3 w-3 rounded-full ${item.done ? 'bg-green-500' : 'bg-red-500'}`}
                 ></div>
                 <div>{item.text}</div>
               </div>

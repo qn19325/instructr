@@ -123,15 +123,15 @@ Key HMRC API resource types to use when naming and structuring data:
 
 ## Tech Stack
 
-| Layer        | Choice                              |
-| ------------ | ----------------------------------- |
+| Layer        | Choice                               |
+| ------------ | ------------------------------------ |
 | Framework    | Next.js 15 (App Router) + TypeScript |
-| Database     | Neon (serverless PostgreSQL)        |
-| ORM          | Drizzle ORM                         |
-| Auth         | Clerk                               |
-| File storage | Cloudflare R2                       |
-| Email        | Resend + React Email                |
-| Hosting      | Vercel                              |
+| Database     | Neon (serverless PostgreSQL)         |
+| ORM          | Drizzle ORM                          |
+| Auth         | Clerk                                |
+| File storage | Cloudflare R2                        |
+| Email        | Resend + React Email                 |
+| Hosting      | Vercel                               |
 
 ### Why These Choices
 
@@ -223,11 +223,12 @@ src/
 
 Create a `.env.local` file in the project root. It is gitignored — never commit it.
 
-| Variable | Description |
-|---|---|
+| Variable       | Description                  |
+| -------------- | ---------------------------- |
 | `DATABASE_URL` | PostgreSQL connection string |
 
 **Local development value:**
+
 ```
 DATABASE_URL=postgresql://<your-user>@localhost:5432/business_application
 ```
@@ -255,6 +256,7 @@ npm run build
 `npm run format` fixes formatting automatically if needed. `npm run build` includes ESLint and type checking — must pass before shipping.
 
 Also before committing:
+
 - Review code against the engineering conventions in this file
 - Check for dead code and unused imports
 
@@ -280,12 +282,12 @@ Also before committing:
 
 Plans and design references live in the wiki at `/Users/joshuahall/Documents/business-vault/wiki/topics/`.
 
-| Wiki page | What it covers |
-|---|---|
-| `wiki/topics/application-build-phases.md` | High-level overview of all five phases (A–E) |
-| `wiki/topics/ui-design.md` | Design system: colour palette, typography, status pills, per-screen layout mockups |
+| Wiki page                                 | What it covers                                                                            |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `wiki/topics/application-build-phases.md` | High-level overview of all five phases (A–E)                                              |
+| `wiki/topics/ui-design.md`                | Design system: colour palette, typography, status pills, per-screen layout mockups        |
 | `wiki/decisions/type-mapping-strategy.md` | Decision to defer api.types/models split to Phase B; explains the Omit patches in Phase A |
-| `wiki/topics/phase-b-database-schema.md` | Phase B database schema: ERD, table designs, and design decisions |
+| `wiki/topics/phase-b-database-schema.md`  | Phase B database schema: ERD, table designs, and design decisions                         |
 
 ---
 
@@ -297,15 +299,15 @@ Plans and design references live in the wiki at `/Users/joshuahall/Documents/bus
 
 **Goal:** Data persists. Lara can add clients and set statuses in a real database.
 
-| Step | Status |
-|------|--------|
-| B1 — Local PostgreSQL setup | ✅ Done |
-| B2 — Drizzle ORM installed + configured | ✅ Done |
-| B3 — Schema designed + migration applied | ✅ Done — `src/db/schema.ts`, `drizzle/0000_odd_marvex.sql` |
-| B4 — Drizzle client (`src/db/index.ts`) | 🔲 Next |
-| B5 — Replace mock data with real DB reads | 🔲 Todo |
-| B6 — Create/edit client forms | 🔲 Todo |
-| B7 — Connect Neon (production database) | 🔲 Todo |
+| Step                                      | Status                                                      |
+| ----------------------------------------- | ----------------------------------------------------------- |
+| B1 — Local PostgreSQL setup               | ✅ Done                                                     |
+| B2 — Drizzle ORM installed + configured   | ✅ Done                                                     |
+| B3 — Schema designed + migration applied  | ✅ Done — `src/db/schema.ts`, `drizzle/0000_odd_marvex.sql` |
+| B4 — Drizzle client (`src/db/index.ts`)   | 🔲 Next                                                     |
+| B5 — Replace mock data with real DB reads | 🔲 Todo                                                     |
+| B6 — Create/edit client forms             | 🔲 Todo                                                     |
+| B7 — Connect Neon (production database)   | 🔲 Todo                                                     |
 
 Schema design: `wiki/topics/phase-b-database-schema.md`
 

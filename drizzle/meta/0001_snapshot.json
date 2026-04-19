@@ -1,6 +1,6 @@
 {
-  "id": "87092865-dd76-454e-8ad5-5d8dd33e2f11",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "9b83072f-88df-4c41-a4cb-843a4a639ec3",
+  "prevId": "87092865-dd76-454e-8ad5-5d8dd33e2f11",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -34,7 +34,8 @@
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         }
@@ -132,6 +133,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "practice_id": {
+          "name": "practice_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "tax_return_id": {
           "name": "tax_return_id",
           "type": "uuid",
@@ -140,7 +147,8 @@
         },
         "submission_type": {
           "name": "submission_type",
-          "type": "text",
+          "type": "submission_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -152,13 +160,23 @@
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
+        "mtd_submission_practice_id_practice_id_fk": {
+          "name": "mtd_submission_practice_id_practice_id_fk",
+          "tableFrom": "mtd_submission",
+          "tableTo": "practice",
+          "columnsFrom": ["practice_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "mtd_submission_tax_return_id_tax_return_id_fk": {
           "name": "mtd_submission_tax_return_id_tax_return_id_fk",
           "tableFrom": "mtd_submission",
@@ -230,13 +248,21 @@
         },
         "regime": {
           "name": "regime",
-          "type": "text",
+          "type": "regime",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deadline": {
+          "name": "deadline",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         }
@@ -269,7 +295,23 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.regime": {
+      "name": "regime",
+      "schema": "public",
+      "values": ["MTD", "SA100"]
+    },
+    "public.status": {
+      "name": "status",
+      "schema": "public",
+      "values": ["not_started", "in_progress", "awaiting_client", "ready_to_file", "filed"]
+    },
+    "public.submission_type": {
+      "name": "submission_type",
+      "schema": "public",
+      "values": ["q_1", "q_2", "q_3", "q_4", "eops", "final_declaration"]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

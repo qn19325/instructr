@@ -10,11 +10,13 @@ export const Status = {
 
 export type Status = (typeof Status)[keyof typeof Status];
 export type Client = SA100Client | MTDClient;
+export type Regime = 'SA100' | 'MTD';
 
 interface ClientBase {
   id: string;
   niNumber: string; // e.g. AB 12 34 56 C
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
 }
 
@@ -57,5 +59,5 @@ export interface SA100TaxReturn extends TaxReturn {
 
 export interface CheckListItem {
   text: string;
-  received: boolean;
+  done: boolean;
 }

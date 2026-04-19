@@ -14,7 +14,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   return (
     <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
       <div className="mb-6 text-xl font-semibold text-slate-900">
-        {client.name} - {client.niNumber}
+        {client.firstName} - {client.niNumber}
       </div>
       <table className="w-full">
         <thead>
@@ -30,7 +30,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           {client.taxReturns.map((taxReturn) => {
             const taxReturnCardProps: TaxReturnCardProps = {
               ...taxReturn,
-              name: client.name,
+              name: client.firstName,
               deadline: taxReturn.deadline.toLocaleDateString('en-GB'),
             };
             return <Card key={taxReturn.id} {...taxReturnCardProps} />;
