@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import { date, integer, pgTable, text, uuid, pgEnum, boolean } from 'drizzle-orm/pg-core';
 
 export const statusEnum = pgEnum('status', [
@@ -75,3 +76,16 @@ export const checklistItem = pgTable('checklist_item', {
   label: text().notNull(),
   done: boolean().notNull(),
 });
+
+export const practiceRelations = relations(practice, ({ many }) => ({
+  clients: many(client),
+}));
+
+export const clientRelations = relations(client, ({ many }) => ({
+  taxReturns: many(taxReturn),
+}));
+
+export const taxReturnRelations = relations(taxReturn, ({ many }) => ({
+  mtdSubmissions: many(mtdSubmission),
+  checklistItems: many(checklistItem),
+}));
