@@ -21,15 +21,7 @@ export default async function Page() {
         </thead>
         <tbody>
           {clients.map((client) => {
-            return (
-              <ClientListItem
-                key={client.id}
-                id={client.id}
-                firstName={client.firstName}
-                regime={client.regime}
-                taxReturns={client.taxReturns}
-              />
-            );
+            return <ClientListItem key={client.id} client={client} />;
           })}
         </tbody>
       </table>

@@ -1,16 +1,51 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import type * as schema from '../schema';
-import { Client, ClientBase } from '@/types/clients';
+import { Client, ClientBase, MTDTaxReturn, SA100TaxReturn } from '@/types/clients';
 import { db } from '../index';
 
 export const PRACTICE_ID = 'f3253c32-8895-468f-baa0-cdc71ca72a90';
 
-type RawClient = InferSelectModel<typeof schema.client> & {
-  taxReturns: (InferSelectModel<typeof schema.taxReturn> & {
-    mtdSubmissions: InferSelectModel<typeof schema.mtdSubmission>[];
-    checklistItems: InferSelectModel<typeof schema.checklistItem>[];
-  })[];
+type RawTaxReturn = InferSelectModel<typeof schema.taxReturn> & {
+  mtdSubmissions: InferSelectModel<typeof schema.mtdSubmission>[];
+  checklistItems: InferSelectModel<typeof schema.checklistItem>[];
 };
+
+type RawClient = InferSelectModel<typeof schema.client> & {
+  taxReturns: RawTaxReturn[];
+};
+
+function mapTaxReturn(taxReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
+  if (taxReturn.regime === 'mtd') {
+    return {
+      type: 'mtd' as const,
+      id: taxReturn.id,
+      startTaxYear: taxReturn.taxYear,
+      status: taxReturn.status,
+      submissions: taxReturn.mtdSubmissions.map((submission) => ({
+        id: submission.id,
+        submissionType: submission.submissionType,
+        deadline: new Date(submission.deadline),
+        status: submission.status,
+      })),
+      checkList: taxReturn.checklistItems.map((item) => ({
+        text: item.label,
+        done: item.done,
+      })),
+    };
+  } else {
+    return {
+      type: 'sa100' as const,
+      id: taxReturn.id,
+      startTaxYear: taxReturn.taxYear,
+      status: taxReturn.status,
+      deadline: new Date(taxReturn.deadline),
+      checkList: taxReturn.checklistItems.map((item) => ({
+        text: item.label,
+        done: item.done,
+      })),
+    };
+  }
+}
 
 function mapClient(cli: RawClient): Client {
   const base: ClientBase = {
@@ -21,43 +56,9 @@ function mapClient(cli: RawClient): Client {
     email: cli.email,
   };
 
-  if (cli.regime === 'MTD') {
-    return {
-      ...base,
-      regime: cli.regime,
-      taxReturns: cli.taxReturns.map((taxReturn) => ({
-        type: 'MTD' as const,
-        id: taxReturn.id,
-        startTaxYear: taxReturn.taxYear,
-        status: taxReturn.status,
-        submissions: taxReturn.mtdSubmissions.map((submission) => ({
-          id: submission.id,
-          submissionType: submission.submissionType,
-          deadline: new Date(submission.deadline),
-          status: submission.status,
-        })),
-        checkList: taxReturn.checklistItems.map((item) => ({
-          text: item.label,
-          done: item.done,
-        })),
-      })),
-    };
-  }
-
   return {
     ...base,
-    regime: cli.regime,
-    taxReturns: cli.taxReturns.map((taxReturn) => ({
-      type: 'SA100' as const,
-      id: taxReturn.id,
-      startTaxYear: taxReturn.taxYear,
-      status: taxReturn.status,
-      deadline: new Date(taxReturn.deadline),
-      checkList: taxReturn.checklistItems.map((item) => ({
-        text: item.label,
-        done: item.done,
-      })),
-    })),
+    taxReturns: cli.taxReturns.map((taxReturn) => mapTaxReturn(taxReturn)),
   };
 }
 

@@ -10,12 +10,12 @@ interface DeadlineEntryBase {
 }
 
 export interface MTDDeadlineEntry extends DeadlineEntryBase {
-  type: 'MTD';
+  type: 'mtd';
   submissionType: SubmissionType;
 }
 
 export interface SA100DeadlineEntry extends DeadlineEntryBase {
-  type: 'SA100';
+  type: 'sa100';
 }
 
 export type DeadlineEntry = MTDDeadlineEntry | SA100DeadlineEntry;

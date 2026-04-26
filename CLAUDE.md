@@ -7,7 +7,7 @@ Read this file at the start of every session.
 ## Current State
 
 **Active phase: B — Database Layer**
-**Next step: B7 — Connect Neon (production database)**
+**Next step: Phase B code review (pre-B7); schema hardening before Neon. See `wiki/topics/phase-b-code-review.md`.**
 **Deployed (Phase A):** https://business-application-dun.vercel.app
 
 ---
@@ -288,6 +288,7 @@ Plans and design references live in the wiki at `/Users/joshuahall/Documents/bus
 | `wiki/topics/ui-design.md`                | Design system: colour palette, typography, status pills, per-screen layout mockups        |
 | `wiki/decisions/type-mapping-strategy.md` | Decision to defer api.types/models split to Phase B; explains the Omit patches in Phase A |
 | `wiki/topics/phase-b-database-schema.md`  | Phase B database schema: ERD, table designs, and design decisions                         |
+| `wiki/topics/phase-b-code-review.md`      | Post-B6 review: 51 findings, 5 passes, recommended order at bottom                        |
 
 ---
 

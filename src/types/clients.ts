@@ -9,8 +9,7 @@ export const Status = {
 } as const;
 export type Status = (typeof Status)[keyof typeof Status];
 
-export type Client = SA100Client | MTDClient;
-export type Regime = 'SA100' | 'MTD';
+export type Regime = 'sa100' | 'mtd';
 
 export interface ClientBase {
   id: string;
@@ -20,14 +19,8 @@ export interface ClientBase {
   email: string;
 }
 
-interface SA100Client extends ClientBase {
-  regime: 'SA100';
-  taxReturns: SA100TaxReturn[];
-}
-
-interface MTDClient extends ClientBase {
-  regime: 'MTD';
-  taxReturns: MTDTaxReturn[];
+export interface Client extends ClientBase {
+  taxReturns: (SA100TaxReturn | MTDTaxReturn)[];
 }
 
 export const SubmissionType = {
@@ -48,7 +41,7 @@ interface TaxReturn {
 }
 
 export interface MTDTaxReturn extends TaxReturn {
-  type: 'MTD';
+  type: 'mtd';
   submissions: MTDSubmission[];
 }
 
@@ -60,7 +53,7 @@ export interface MTDSubmission {
 }
 
 export interface SA100TaxReturn extends TaxReturn {
-  type: 'SA100';
+  type: 'sa100';
   deadline: Date;
 }
 

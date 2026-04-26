@@ -19,7 +19,7 @@ export default function Card(props: TaxReturnCardProps) {
       >
         <td className="py-3 pr-5">{props.name}</td>
         <td className="py-3 pr-5">
-          {props.type === 'SA100' ? props.deadline.toLocaleDateString() : ''}
+          {props.type === 'sa100' ? props.deadline.toLocaleDateString() : ''}
         </td>
         <td className="py-3 pr-5">
           <StatusBadge status={props.status} />

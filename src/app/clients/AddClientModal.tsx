@@ -17,7 +17,7 @@ export default function AddClientModal() {
   const [niNumber, setNiNumber] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [regime, setRegime] = useState<Regime>('SA100');
+  const [regime, setRegime] = useState<Regime>('sa100');
 
   const [isPending, startTransition] = useTransition();
 
@@ -49,7 +49,7 @@ export default function AddClientModal() {
     setNiNumber('');
     setEmail('');
     setPhone('');
-    setRegime('SA100');
+    setRegime('sa100');
   };
 
   return (
@@ -121,18 +121,18 @@ export default function AddClientModal() {
                     <label className="flex items-center gap-2 text-sm text-slate-700">
                       <input
                         type="radio"
-                        value="SA100"
-                        checked={regime === 'SA100'}
-                        onChange={() => setRegime('SA100')}
+                        value="sa100"
+                        checked={regime === 'sa100'}
+                        onChange={() => setRegime('sa100')}
                       />
                       SA100
                     </label>
                     <label className="flex items-center gap-2 text-sm text-slate-700">
                       <input
                         type="radio"
-                        value="MTD"
-                        checked={regime === 'MTD'}
-                        onChange={() => setRegime('MTD')}
+                        value="mtd"
+                        checked={regime === 'mtd'}
+                        onChange={() => setRegime('mtd')}
                       />
                       MTD
                     </label>

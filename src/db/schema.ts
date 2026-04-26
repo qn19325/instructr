@@ -1,5 +1,16 @@
 import { relations } from 'drizzle-orm';
-import { date, integer, pgTable, text, uuid, pgEnum, boolean } from 'drizzle-orm/pg-core';
+import {
+  date,
+  integer,
+  pgTable,
+  text,
+  uuid,
+  pgEnum,
+  boolean,
+  timestamp,
+  unique,
+  index,
+} from 'drizzle-orm/pg-core';
 
 export const statusEnum = pgEnum('status', [
   'not_started',
@@ -9,7 +20,7 @@ export const statusEnum = pgEnum('status', [
   'filed',
 ]);
 
-export const regimeEnum = pgEnum('regime', ['MTD', 'SA100']);
+export const regimeEnum = pgEnum('regime', ['mtd', 'sa100']);
 
 export const submissionTypeEnum = pgEnum('submission_type', [
   'q_1',
@@ -20,63 +31,126 @@ export const submissionTypeEnum = pgEnum('submission_type', [
   'final_declaration',
 ]);
 
+export const documentTypeEnum = pgEnum('document_type', [
+  'p60',
+  'p11d',
+  'bank_statements',
+  'self_employment',
+  'rental',
+  'dividends',
+  'pension',
+  'capital_gains',
+  'income',
+  'expenses',
+  'mileage_log',
+]);
+
 export const practice = pgTable('practice', {
   id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp()
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
-export const client = pgTable('client', {
-  id: uuid().primaryKey().defaultRandom(),
-  practiceId: uuid()
-    .notNull()
-    .references(() => practice.id),
-  firstName: text().notNull(),
-  lastName: text().notNull(),
-  niNumber: text().notNull(),
-  email: text().notNull(),
-  phoneNumber: text(),
-  regime: regimeEnum().notNull(),
-});
+export const client = pgTable(
+  'client',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    practiceId: uuid()
+      .notNull()
+      .references(() => practice.id, { onDelete: 'restrict' }),
+    firstName: text().notNull(),
+    lastName: text().notNull(),
+    niNumber: text().notNull(),
+    email: text().notNull(),
+    phoneNumber: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index('client_practice_id_idx').on(table.practiceId),
+    unique().on(table.practiceId, table.niNumber),
+  ],
+);
 
-export const taxReturn = pgTable('tax_return', {
-  id: uuid().primaryKey().defaultRandom(),
-  practiceId: uuid()
-    .notNull()
-    .references(() => practice.id),
-  clientId: uuid()
-    .notNull()
-    .references(() => client.id),
-  taxYear: integer().notNull(),
-  regime: regimeEnum().notNull(),
-  status: statusEnum().notNull(),
-  deadline: date().notNull(),
-});
+export const taxReturn = pgTable(
+  'tax_return',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    practiceId: uuid()
+      .notNull()
+      .references(() => practice.id, { onDelete: 'restrict' }),
+    clientId: uuid()
+      .notNull()
+      .references(() => client.id, { onDelete: 'restrict' }),
+    taxYear: integer().notNull(),
+    regime: regimeEnum().notNull(),
+    status: statusEnum().notNull(),
+    deadline: date().notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index('tax_return_practice_id_idx').on(table.practiceId),
+    unique().on(table.clientId, table.taxYear, table.regime),
+  ],
+);
 
-export const mtdSubmission = pgTable('mtd_submission', {
-  id: uuid().primaryKey().defaultRandom(),
-  practiceId: uuid()
-    .notNull()
-    .references(() => practice.id),
-  taxReturnId: uuid()
-    .notNull()
-    .references(() => taxReturn.id),
-  submissionType: submissionTypeEnum().notNull(),
-  deadline: date().notNull(),
-  status: statusEnum().notNull(),
-});
+export const mtdSubmission = pgTable(
+  'mtd_submission',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    practiceId: uuid()
+      .notNull()
+      .references(() => practice.id, { onDelete: 'restrict' }),
+    taxReturnId: uuid()
+      .notNull()
+      .references(() => taxReturn.id, { onDelete: 'cascade' }),
+    submissionType: submissionTypeEnum().notNull(),
+    deadline: date().notNull(),
+    status: statusEnum().notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index('mtd_submission_practice_id_idx').on(table.practiceId),
+    unique().on(table.taxReturnId, table.submissionType),
+  ],
+);
 
-export const checklistItem = pgTable('checklist_item', {
-  id: uuid().primaryKey().defaultRandom(),
-  practiceId: uuid()
-    .notNull()
-    .references(() => practice.id),
-  taxReturnId: uuid()
-    .notNull()
-    .references(() => taxReturn.id),
-  documentType: text().notNull(),
-  label: text().notNull(),
-  done: boolean().notNull(),
-});
+export const checklistItem = pgTable(
+  'checklist_item',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    practiceId: uuid()
+      .notNull()
+      .references(() => practice.id, { onDelete: 'restrict' }),
+    taxReturnId: uuid()
+      .notNull()
+      .references(() => taxReturn.id, { onDelete: 'cascade' }),
+    documentType: documentTypeEnum().notNull(),
+    label: text().notNull(),
+    done: boolean().notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [index('checklist_item_practice_id_idx').on(table.practiceId)],
+);
 
 export const practiceRelations = relations(practice, ({ many }) => ({
   clients: many(client),

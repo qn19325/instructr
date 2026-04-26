@@ -31,7 +31,6 @@ export default async function createClient(props: ClientActionsProps): Promise<C
           niNumber: props.niNumber,
           email: props.email,
           phoneNumber: props.phone,
-          regime: props.regime,
         })
         .returning();
 
@@ -47,7 +46,7 @@ export default async function createClient(props: ClientActionsProps): Promise<C
         })
         .returning();
 
-      const checkList = props.regime === 'MTD' ? mtdChecklist : sa100Checklist;
+      const checkList = props.regime === 'mtd' ? mtdChecklist : sa100Checklist;
       await Promise.all(
         checkList.map((item) => {
           return tx.insert(checklistItem).values({

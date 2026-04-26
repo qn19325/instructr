@@ -5,7 +5,7 @@ export function getDeadlineEntries(clients: Client[]): DeadlineEntry[] {
   const deadlineEntries: DeadlineEntry[] = clients.flatMap((client) => {
     return (client.taxReturns as (SA100TaxReturn | MTDTaxReturn)[]).flatMap(
       (taxReturn): DeadlineEntry[] => {
-        if (taxReturn.type === 'MTD') {
+        if (taxReturn.type === 'mtd') {
           return taxReturn.submissions.map((submission) => ({
             name: `${client.firstName} ${client.lastName}`,
             id: submission.id,

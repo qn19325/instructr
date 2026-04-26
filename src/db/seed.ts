@@ -9,11 +9,10 @@ async function main() {
     .values({
       practiceId: insertedPractice.id,
       niNumber: 'AB 00 00 00 C',
-      firstName: 'Client MTD 0 FIRST',
-      lastName: 'Client MTD 0 LAST',
-      email: 'clientMTD_0@mail.com',
+      firstName: 'Client mtd 0 FIRST',
+      lastName: 'Client mtd 0 LAST',
+      email: 'clientmtd_0@mail.com',
       phoneNumber: '00000000000',
-      regime: 'MTD',
     })
     .returning();
 
@@ -22,11 +21,10 @@ async function main() {
     .values({
       practiceId: insertedPractice.id,
       niNumber: 'AB 00 00 01 C',
-      firstName: 'Client SA100 0 FIRST',
-      lastName: 'Client SA100 0 LAST',
-      email: 'clientSA100_0@mail.com',
+      firstName: 'Client sa100 0 FIRST',
+      lastName: 'Client sa100 0 LAST',
+      email: 'clientsa100_0@mail.com',
       phoneNumber: '00000000001',
-      regime: 'SA100',
     })
     .returning();
 
@@ -36,7 +34,7 @@ async function main() {
       practiceId: insertedPractice.id,
       clientId: insertedClientMtd.id,
       taxYear: 2025,
-      regime: 'MTD',
+      regime: 'mtd',
       status: 'filed',
       deadline: '2025-08-07',
     })
@@ -64,7 +62,7 @@ async function main() {
       practiceId: insertedPractice.id,
       clientId: insertedClientSa100.id,
       taxYear: 2025,
-      regime: 'SA100',
+      regime: 'sa100',
       status: 'filed',
       deadline: '2026-01-31',
     })
