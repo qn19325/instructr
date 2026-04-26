@@ -3,7 +3,7 @@ import type * as schema from '../schema';
 import { Client, ClientBase } from '@/types/clients';
 import { db } from '../index';
 
-const PRACTICE_ID = 'f3253c32-8895-468f-baa0-cdc71ca72a90';
+export const PRACTICE_ID = 'f3253c32-8895-468f-baa0-cdc71ca72a90';
 
 type RawClient = InferSelectModel<typeof schema.client> & {
   taxReturns: (InferSelectModel<typeof schema.taxReturn> & {

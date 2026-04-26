@@ -7,8 +7,8 @@ export const Status = {
   ready_to_file: 'ready_to_file',
   filed: 'filed',
 } as const;
-
 export type Status = (typeof Status)[keyof typeof Status];
+
 export type Client = SA100Client | MTDClient;
 export type Regime = 'SA100' | 'MTD';
 
