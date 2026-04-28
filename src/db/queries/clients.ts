@@ -2,8 +2,7 @@ import type { InferSelectModel } from 'drizzle-orm';
 import type * as schema from '../schema';
 import { Client, ClientBase, MTDTaxReturn, SA100TaxReturn } from '@/types/clients';
 import { db } from '../index';
-
-export const PRACTICE_ID = '5af61e07-68f1-47f6-b260-acbdc83539a1';
+import { getCurrentPracticeId } from '@/lib/auth';
 
 type RawTaxReturn = InferSelectModel<typeof schema.taxReturn> & {
   mtdSubmissions: InferSelectModel<typeof schema.mtdSubmission>[];
@@ -65,7 +64,7 @@ function mapClient(cli: RawClient): Client {
 export function getClients(): Promise<Client[]> {
   return db.query.client
     .findMany({
-      where: (table, { eq }) => eq(table.practiceId, PRACTICE_ID),
+      where: (table, { eq }) => eq(table.practiceId, getCurrentPracticeId()),
       with: {
         taxReturns: {
           with: {
@@ -81,7 +80,8 @@ export function getClients(): Promise<Client[]> {
 export function getClientById(id: string): Promise<Client | null> {
   return db.query.client
     .findFirst({
-      where: (table, { eq, and }) => and(eq(table.id, id), eq(table.practiceId, PRACTICE_ID)),
+      where: (table, { eq, and }) =>
+        and(eq(table.id, id), eq(table.practiceId, getCurrentPracticeId())),
       with: {
         taxReturns: {
           with: {

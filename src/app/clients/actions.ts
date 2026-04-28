@@ -1,9 +1,9 @@
 'use server';
 
 import { db } from '@/db';
-import { Regime, Status } from '@/types/clients';
-import { client, taxReturn, checklistItem } from '@/db/schema';
-import { PRACTICE_ID } from '@/db/queries/clients';
+import { Regime, Status, SubmissionType } from '@/types/clients';
+import { client, taxReturn, checklistItem, mtdSubmission } from '@/db/schema';
+import { getCurrentPracticeId } from '@/lib/auth';
 import { currentTaxYear } from '@/lib/helpers';
 import { mtdChecklist, sa100Checklist } from '@/lib/checklistDefaults';
 import { revalidatePath } from 'next/cache';
@@ -25,7 +25,7 @@ export default async function createClient(props: ClientActionsProps): Promise<C
       const [newClient] = await tx
         .insert(client)
         .values({
-          practiceId: PRACTICE_ID,
+          practiceId: getCurrentPracticeId(),
           firstName: props.firstName,
           lastName: props.lastName,
           niNumber: props.niNumber,
@@ -37,7 +37,7 @@ export default async function createClient(props: ClientActionsProps): Promise<C
       const [newTaxReturn] = await tx
         .insert(taxReturn)
         .values({
-          practiceId: PRACTICE_ID,
+          practiceId: getCurrentPracticeId(),
           clientId: newClient.id,
           taxYear: currentTaxYear(),
           regime: props.regime,
@@ -46,28 +46,42 @@ export default async function createClient(props: ClientActionsProps): Promise<C
         })
         .returning();
 
-      const checkList = props.regime === 'mtd' ? mtdChecklist : sa100Checklist;
-      await Promise.all(
-        checkList.map((item) => {
-          return tx.insert(checklistItem).values({
-            practiceId: PRACTICE_ID,
-            taxReturnId: newTaxReturn.id,
-            documentType: item.documentType,
-            label: item.label,
-            done: false,
-          });
-        }),
+        
+        if (props.regime === Regime.mtd) {
+          const quarters = [                                                                                                              
+           { submissionType: SubmissionType.q_1, deadline: `${currentTaxYear()}-08-07` },                                                                                                                                                                                                 
+           { submissionType: SubmissionType.q_2, deadline: `${currentTaxYear()}-11-07` },                                                                                                                                                                                                 
+           { submissionType: SubmissionType.q_3, deadline: `${currentTaxYear() + 1}-02-07` },                                                                                                                                                                                             
+           { submissionType: SubmissionType.q_4, deadline: `${currentTaxYear() + 1}-05-07` },                                                                                                                                                                                             
+         ]; 
+          await tx.insert(mtdSubmission).values(quarters.map((quarter) => {
+            return {
+                practiceId: getCurrentPracticeId(),
+                taxReturnId: newTaxReturn.id,
+                submissionType: quarter.submissionType,
+                deadline: quarter.deadline,
+                status: Status.not_started,
+              };
+          }))
+        }
+
+      const checkList = props.regime === Regime.mtd ? mtdChecklist : sa100Checklist;
+
+      await tx.insert(checklistItem).values(
+        checkList.map((item) => ({
+          practiceId: getCurrentPracticeId(),
+          taxReturnId: newTaxReturn.id,
+          documentType: item.documentType,
+          label: item.label,
+          done: false,
+        })),
       );
     });
+
     revalidatePath('/clients');
 
-    return {
-      success: true,
-    };
+    return { success: true };
   } catch {
-    return {
-      success: false,
-      error: 'Failed to create client',
-    };
+    return { success: false, error: 'Failed to create client' };
   }
 }
