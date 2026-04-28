@@ -1,10 +1,11 @@
 'use server';
 
 import { db } from '@/db';
-import { Regime, Status, SubmissionType } from '@/types/clients';
+import { Regime, Status } from '@/types/clients';
 import { client, taxReturn, checklistItem, mtdSubmission } from '@/db/schema';
 import { getCurrentPracticeId } from '@/lib/auth';
-import { currentTaxYear } from '@/lib/helpers';
+import { currentTaxYear } from '@/lib/deadlines';
+import { sa100Deadline, mtdDeadlines } from '@/lib/deadlines';
 import { mtdChecklist, sa100Checklist } from '@/lib/checklistDefaults';
 import { revalidatePath } from 'next/cache';
 
@@ -42,27 +43,19 @@ export default async function createClient(props: ClientActionsProps): Promise<C
           taxYear: currentTaxYear(),
           regime: props.regime,
           status: Status.not_started,
-          deadline: `${currentTaxYear() + 1}-01-31`,
+          deadline: sa100Deadline(currentTaxYear()),
         })
         .returning();
 
       if (props.regime === Regime.mtd) {
-        const quarters = [
-          { submissionType: SubmissionType.q_1, deadline: `${currentTaxYear()}-08-07` },
-          { submissionType: SubmissionType.q_2, deadline: `${currentTaxYear()}-11-07` },
-          { submissionType: SubmissionType.q_3, deadline: `${currentTaxYear() + 1}-02-07` },
-          { submissionType: SubmissionType.q_4, deadline: `${currentTaxYear() + 1}-05-07` },
-        ];
         await tx.insert(mtdSubmission).values(
-          quarters.map((quarter) => {
-            return {
-              practiceId: getCurrentPracticeId(),
-              taxReturnId: newTaxReturn.id,
-              submissionType: quarter.submissionType,
-              deadline: quarter.deadline,
-              status: Status.not_started,
-            };
-          }),
+          mtdDeadlines(currentTaxYear()).map((quarter) => ({
+            practiceId: getCurrentPracticeId(),
+            taxReturnId: newTaxReturn.id,
+            submissionType: quarter.submissionType,
+            deadline: quarter.deadline,
+            status: Status.not_started,
+          })),
         );
       }
 

@@ -43,6 +43,8 @@ Two distinct roles, kept cleanly separated in auth and data model:
 
 Wiki at `/Users/joshuahall/Documents/business/business-vault/wiki/`. Start at `wiki/index.md` (master catalog) or grep for topics. Read pages on demand; don't duplicate here.
 
+**Memory vs wiki:** Project decisions, scheduling, sequencing, and architectural notes belong in the wiki. Auto-memory (`.claude/memory/`) is for user preferences, collaboration style, and cross-session state only — things that genuinely can't live in the wiki.
+
 ---
 
 ## Tech Stack

@@ -1,4 +1,4 @@
-import { getDeadlineEntries } from '@/lib/helpers';
+import { getDeadlineEntries } from '@/lib/deadlines';
 import { DeadlineEntry } from '@/types/calendarModels';
 import { Fragment } from 'react';
 import StatusBadge from '@/components/StatusBadge';
