@@ -27,7 +27,7 @@ export default async function Page() {
   );
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
+    <>
       <div className="mb-6 text-xl font-semibold text-slate-900">Deadlines</div>
       <table className="w-full">
         <thead>
@@ -39,33 +39,41 @@ export default async function Page() {
           </tr>
         </thead>
         <tbody>
-          {Object.entries(groupedDeadlineEntries).map(([month, entries]) => (
-            <Fragment key={month}>
-              <tr>
-                <td
-                  colSpan={4}
-                  className="pt-4 pb-2 text-xs font-medium tracking-wide text-slate-400 uppercase"
-                >
-                  {month}
-                </td>
-              </tr>
-              {entries.map((entry) => (
-                <tr
-                  key={entry.id}
-                  className="cursor-pointer border-b border-slate-100 transition-colors hover:bg-slate-50"
-                >
-                  <td className="py-3 pr-5">{entry.name}</td>
-                  <td className="py-3 pr-5">{entry.deadline.toLocaleDateString('en-GB')}</td>
-                  <td className="py-3 pr-5">{entry.taxYearLabel}</td>
-                  <td className="py-3 pr-5">
-                    <StatusBadge status={entry.status} />
+          {pageData.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="py-8 text-center text-sm text-slate-400">
+                No deadlines to show.
+              </td>
+            </tr>
+          ) : (
+            Object.entries(groupedDeadlineEntries).map(([month, entries]) => (
+              <Fragment key={month}>
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="pt-4 pb-2 text-xs font-medium tracking-wide text-slate-400 uppercase"
+                  >
+                    {month}
                   </td>
                 </tr>
-              ))}
-            </Fragment>
-          ))}
+                {entries.map((entry) => (
+                  <tr
+                    key={entry.id}
+                    className="border-b border-slate-100 transition-colors hover:bg-slate-50"
+                  >
+                    <td className="py-3 pr-5">{entry.name}</td>
+                    <td className="py-3 pr-5">{entry.deadline.toLocaleDateString('en-GB')}</td>
+                    <td className="py-3 pr-5">{entry.taxYearLabel}</td>
+                    <td className="py-3 pr-5">
+                      <StatusBadge status={entry.status} />
+                    </td>
+                  </tr>
+                ))}
+              </Fragment>
+            ))
+          )}
         </tbody>
       </table>
-    </div>
+    </>
   );
 }

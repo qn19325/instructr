@@ -1,6 +1,6 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import type * as schema from './schema';
-import { type Client, type ClientBase, type MTDTaxReturn, type SA100TaxReturn, Regime, Status } from '@/types/clients';
+import { type Client, type ClientBase, type ChecklistItem, type MTDTaxReturn, type SA100TaxReturn, Regime, Status } from '@/types/clients';
 import { db } from './index';
 import { client, taxReturn, checklistItem, mtdSubmission } from './schema';
 import { getCurrentPracticeId } from '@/lib/auth';
@@ -16,6 +16,14 @@ type RawClient = InferSelectModel<typeof schema.client> & {
   taxReturns: RawTaxReturn[];
 };
 
+function mapChecklist(items: InferSelectModel<typeof schema.checklistItem>[]): ChecklistItem[] {
+  return items.map((item) => ({
+    id: item.id,
+    text: item.label,
+    done: item.done,
+  }));
+}
+
 function mapTaxReturn(taxReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
   if (taxReturn.regime === 'mtd') {
     return {
@@ -29,11 +37,7 @@ function mapTaxReturn(taxReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
         deadline: new Date(submission.deadline),
         status: submission.status,
       })),
-      checklist: taxReturn.checklistItems.map((item) => ({
-        id: item.id,
-        text: item.label,
-        done: item.done,
-      })),
+      checklist: mapChecklist(taxReturn.checklistItems),
     };
   } else {
     return {
@@ -42,11 +46,7 @@ function mapTaxReturn(taxReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
       startTaxYear: taxReturn.taxYear,
       status: taxReturn.status,
       deadline: new Date(taxReturn.deadline),
-      checklist: taxReturn.checklistItems.map((item) => ({
-        id: item.id,
-        text: item.label,
-        done: item.done,
-      })),
+      checklist: mapChecklist(taxReturn.checklistItems),
     };
   }
 }

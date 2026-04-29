@@ -53,7 +53,7 @@ async function main() {
     taxReturnId: insertedTaxReturnMtd.id,
     documentType: 'bank_statements',
     label: 'Bank statements for the quarter',
-    done: false,
+    done: true,
   });
 
   const [insertedTaxReturnSa100] = await db
@@ -81,7 +81,7 @@ async function main() {
     taxReturnId: insertedTaxReturnSa100.id,
     documentType: 'bank_statements',
     label: 'Bank statements',
-    done: false,
+    done: true,
   });
 
   await db.insert(mtdSubmission).values({

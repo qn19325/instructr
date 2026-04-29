@@ -4,16 +4,19 @@ import { getClientById } from '@/db/clients';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
-  const client = await getClientById(id);
+  const clientRecord = await getClientById(id);
 
-  if (!client) {
+  if (!clientRecord) {
     notFound();
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
-      <div className="mb-6 text-xl font-semibold text-slate-900">
-        {client.firstName} - {client.niNumber}
+    <>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="text-2xl font-semibold text-slate-900">
+          {clientRecord.firstName} {clientRecord.lastName}
+        </div>
+        <div className="font-mono text-sm text-slate-400">{clientRecord.niNumber}</div>
       </div>
       <table className="w-full">
         <thead>
@@ -26,17 +29,17 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           </tr>
         </thead>
         <tbody>
-          {client.taxReturns.map((taxReturn) => {
-            return <TaxReturnCard key={taxReturn.id} name={client.firstName} {...taxReturn} />;
+          {clientRecord.taxReturns.map((taxReturn) => {
+            return <TaxReturnCard key={taxReturn.id} name={clientRecord.firstName} {...taxReturn} />;
           })}
         </tbody>
       </table>
-      <div>
+      <div className="mt-8">
         <div className="border-b border-slate-200 pb-2 text-xs font-medium text-slate-400 uppercase">
           Notes
         </div>
-        <div className="mt-2 flex-1 overflow-y-auto bg-white p-2">Placeholder...</div>
+        <p className="mt-3 text-sm text-slate-400">No notes yet.</p>
       </div>
-    </div>
+    </>
   );
 }
