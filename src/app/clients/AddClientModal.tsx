@@ -16,7 +16,7 @@ export default function AddClientModal() {
   const [lastName, setLastName] = useState('');
   const [niNumber, setNiNumber] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [regime, setRegime] = useState<Regime>('sa100');
 
   const [isPending, startTransition] = useTransition();
@@ -30,7 +30,7 @@ export default function AddClientModal() {
         lastName,
         niNumber,
         email,
-        phone,
+        phoneNumber: phoneNumber,
         regime,
       });
 
@@ -48,7 +48,7 @@ export default function AddClientModal() {
     setLastName('');
     setNiNumber('');
     setEmail('');
-    setPhone('');
+    setPhoneNumber('');
     setRegime('sa100');
   };
 
@@ -110,8 +110,8 @@ export default function AddClientModal() {
                   <label className={labelClass}>Phone</label>
                   <input
                     type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
                     className={inputClass}
                   />
                 </div>

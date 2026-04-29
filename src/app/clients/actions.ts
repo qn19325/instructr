@@ -14,7 +14,7 @@ interface ClientActionsProps {
   lastName: string;
   niNumber: string;
   email: string;
-  phone?: string;
+  phoneNumber?: string;
   regime: Regime;
 }
 
@@ -31,7 +31,7 @@ export default async function createClient(props: ClientActionsProps): Promise<C
           lastName: props.lastName,
           niNumber: props.niNumber,
           email: props.email,
-          phoneNumber: props.phone,
+          phoneNumber: props.phoneNumber,
         })
         .returning();
 
@@ -59,10 +59,10 @@ export default async function createClient(props: ClientActionsProps): Promise<C
         );
       }
 
-      const checkList = props.regime === Regime.mtd ? mtdChecklist : sa100Checklist;
+      const checklist = props.regime === Regime.mtd ? mtdChecklist : sa100Checklist;
 
       await tx.insert(checklistItem).values(
-        checkList.map((item) => ({
+        checklist.map((item) => ({
           practiceId: getCurrentPracticeId(),
           taxReturnId: newTaxReturn.id,
           documentType: item.documentType,

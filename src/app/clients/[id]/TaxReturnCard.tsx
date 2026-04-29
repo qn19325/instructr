@@ -8,7 +8,7 @@ export type TaxReturnCardProps =
   | (SA100TaxReturn & { name: string })
   | (MTDTaxReturn & { name: string });
 
-export default function Card(props: TaxReturnCardProps) {
+export default function TaxReturnCard(props: TaxReturnCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -30,7 +30,7 @@ export default function Card(props: TaxReturnCardProps) {
       {isExpanded && (
         <tr>
           <td colSpan={5} className="pb-3">
-            {props.checkList.map((item, idx) => (
+            {props.checklist.map((item, idx) => (
               <div key={idx} className="flex items-center gap-2 py-1 text-sm text-slate-600">
                 <div
                   className={`h-3 w-3 rounded-full ${item.done ? 'bg-green-500' : 'bg-red-500'}`}

@@ -40,7 +40,7 @@ export interface Client extends ClientBase {
 interface TaxReturn {
   id: string;
   startTaxYear: number;
-  checkList: CheckListItem[];
+  checklist: ChecklistItem[];
   status: Status;
 }
 
@@ -61,7 +61,7 @@ export interface SA100TaxReturn extends TaxReturn {
   deadline: Date;
 }
 
-export interface CheckListItem {
+export interface ChecklistItem {
   text: string;
   done: boolean;
 }

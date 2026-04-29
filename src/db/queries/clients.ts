@@ -26,7 +26,7 @@ function mapTaxReturn(taxReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
         deadline: new Date(submission.deadline),
         status: submission.status,
       })),
-      checkList: taxReturn.checklistItems.map((item) => ({
+      checklist: taxReturn.checklistItems.map((item) => ({
         text: item.label,
         done: item.done,
       })),
@@ -38,7 +38,7 @@ function mapTaxReturn(taxReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
       startTaxYear: taxReturn.taxYear,
       status: taxReturn.status,
       deadline: new Date(taxReturn.deadline),
-      checkList: taxReturn.checklistItems.map((item) => ({
+      checklist: taxReturn.checklistItems.map((item) => ({
         text: item.label,
         done: item.done,
       })),

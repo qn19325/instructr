@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Card from './TaxReturnCard';
+import TaxReturnCard from './TaxReturnCard';
 import { getClientById } from '@/db/queries/clients';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
@@ -27,7 +27,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         </thead>
         <tbody>
           {client.taxReturns.map((taxReturn) => {
-            return <Card key={taxReturn.id} name={client.firstName} {...taxReturn} />;
+            return <TaxReturnCard key={taxReturn.id} name={client.firstName} {...taxReturn} />;
           })}
         </tbody>
       </table>
