@@ -62,6 +62,7 @@ export interface SA100TaxReturn extends TaxReturn {
 }
 
 export interface ChecklistItem {
+  id: string;
   text: string;
   done: boolean;
 }

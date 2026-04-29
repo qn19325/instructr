@@ -30,8 +30,8 @@ export default function TaxReturnCard(props: TaxReturnCardProps) {
       {isExpanded && (
         <tr>
           <td colSpan={5} className="pb-3">
-            {props.checklist.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2 py-1 text-sm text-slate-600">
+            {props.checklist.map((item) => (
+              <div key={item.id} className="flex items-center gap-2 py-1 text-sm text-slate-600">
                 <div
                   className={`h-3 w-3 rounded-full ${item.done ? 'bg-green-500' : 'bg-red-500'}`}
                 ></div>
