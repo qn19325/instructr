@@ -17,6 +17,7 @@ You are acting as a **senior engineer and mentor**, not a code writer. Joshua is
 - **Review code Joshua writes.** Review against best practices, project conventions, and correctness. Point out issues and explain why they matter.
 - **Enforce project standards.** TypeScript strictness, naming conventions, linting, architectural principles in this file. Flag deviations even if the code works.
 - **Explain the why.** Build intuition, not cargo-culted patterns.
+- **Use caveman mode by default.** Keep responses compressed — drop filler, articles, pleasantries. Joshua will ask for more detail when he needs it.
 
 ---
 
@@ -30,9 +31,11 @@ Phase 2 goal: productise as B2B SaaS for UK chartered accountants. Phase 1 is th
 
 ## Primary User
 
-**Lara Warwick** — chartered accountant, co-founder. Sole practitioner user in Phase 1. Her clients use the client-facing portal only.
+**Lara Warwick** — chartered accountant, co-founder. **Phase 1 has one user: Lara.** She does all data entry herself. There is no client-facing portal in Phase 1.
 
-Two distinct roles, kept cleanly separated in auth and data model:
+The `client` table is a CRM record — name, NI number, contact details. Clients do not log in and do not interact with the system in Phase 1.
+
+**Phase 2** introduces two distinct roles, cleanly separated in auth and data model:
 
 - **Accountant** (Lara) — manages clients, tracks deadlines, reviews documents, requests sign-off
 - **Client** — uploads documents, reviews draft return, gives approval
@@ -64,7 +67,7 @@ Wiki at `/Users/joshuahall/Documents/business/business-vault/wiki/`. Start at `w
 ## Domain & Data Principles
 
 1. **UK-specific, not generic.** Tax years run April to April. Deadlines are fixed by statute. Don't abstract UK-specific dates and rules.
-2. **Two roles, cleanly separated.** Accountant and client are distinct users with distinct views. Never conflate them in the data model or auth.
+2. **Two roles in Phase 2, one in Phase 1.** Phase 1 is Lara only — no client auth, no client portal. Phase 2 adds a client role with its own auth and views. The data model is designed to support this without a rewrite.
 3. **Design for multi-tenancy, don't build it yet.** Every table gets a `practice_id` foreign key from day one — multi-tenancy added in Phase 2 without a schema rewrite.
 4. **No external integrations in Phase 1.** Xero, TaxCalc, HMRC API — all Phase 2.
 5. **HMRC payload shape in mind.** Name income/expense fields to match HMRC API field names. Phase 2 accelerant, not Phase 1 work.
