@@ -1,4 +1,4 @@
-import { Client, Status, SA100TaxReturn, MTDTaxReturn } from '@/types/clients';
+import { Client, Status, MtdSubmissionStatus, SA100TaxReturn, MTDTaxReturn } from '@/types/clients';
 import { formatDeadline } from './deadlines';
 
 export function nextUnfiledReturn(client: Client): SA100TaxReturn | MTDTaxReturn | null {
@@ -12,7 +12,7 @@ export function nextDeadline(taxReturn: SA100TaxReturn | MTDTaxReturn): string {
     return formatDeadline(taxReturn.deadline);
   } else {
     const unfiledSubmission = taxReturn.submissions.find(
-      (submission) => submission.status !== Status.filed,
+      (submission) => submission.status !== MtdSubmissionStatus.submitted,
     );
     return unfiledSubmission ? formatDeadline(unfiledSubmission.deadline) : '';
   }

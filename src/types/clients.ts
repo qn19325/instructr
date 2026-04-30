@@ -15,6 +15,13 @@ export const Regime = {
 } as const;
 export type Regime = (typeof Regime)[keyof typeof Regime];
 
+export const MtdSubmissionStatus = {
+  pending: 'pending',
+  submitted: 'submitted',
+  overdue: 'overdue',
+} as const;
+export type MtdSubmissionStatus = (typeof MtdSubmissionStatus)[keyof typeof MtdSubmissionStatus];
+
 export const SubmissionType = {
   q_1: 'q_1',
   q_2: 'q_2',
@@ -53,7 +60,7 @@ export interface MTDSubmission {
   submissionType: SubmissionType;
   id: string;
   deadline: Date;
-  status: Status;
+  status: MtdSubmissionStatus;
 }
 
 export interface SA100TaxReturn extends TaxReturn {

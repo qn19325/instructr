@@ -1,6 +1,7 @@
 import type { InferInsertModel } from 'drizzle-orm';
 import type { checklistItem } from '@/db/schema';
 import { DocumentType } from '@/types/documents';
+import { Regime } from '@/types/clients';
 
 type ChecklistDefault = Pick<InferInsertModel<typeof checklistItem>, 'documentType' | 'label'>;
 
@@ -21,3 +22,7 @@ export const mtdChecklist: ChecklistDefault[] = [
   { documentType: DocumentType.bank_statements, label: 'Bank statements' },
   { documentType: DocumentType.mileage_log, label: 'Mileage log (if claiming vehicle expenses)' },
 ];
+
+export function getDefaultChecklist(regime: Regime): ChecklistDefault[] {
+  return regime === Regime.mtd ? mtdChecklist : sa100Checklist;
+}

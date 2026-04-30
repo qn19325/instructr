@@ -30,7 +30,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         </thead>
         <tbody>
           {clientRecord.taxReturns.map((taxReturn) => {
-            return <TaxReturnCard key={taxReturn.id} name={clientRecord.firstName} {...taxReturn} />;
+            return (
+              <TaxReturnCard key={taxReturn.id} name={clientRecord.firstName} {...taxReturn} />
+            );
           })}
         </tbody>
       </table>

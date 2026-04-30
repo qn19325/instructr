@@ -5,7 +5,15 @@ import { eq } from 'drizzle-orm';
 const SEED_PRACTICE_NAME = 'Warwick & Co';
 
 async function main() {
-  await db.delete(practice).where(eq(practice.name, SEED_PRACTICE_NAME));
+  const existingPractice = await db.query.practice.findFirst({
+    where: (table, { eq }) => eq(table.name, SEED_PRACTICE_NAME),
+  });
+
+  if (existingPractice) {
+    await db.delete(taxReturn).where(eq(taxReturn.practiceId, existingPractice.id));
+    await db.delete(client).where(eq(client.practiceId, existingPractice.id));
+    await db.delete(practice).where(eq(practice.id, existingPractice.id));
+  }
 
   const [insertedPractice] = await db
     .insert(practice)
@@ -44,7 +52,6 @@ async function main() {
       taxYear: 2025,
       regime: 'mtd',
       status: 'filed',
-      deadline: '2025-08-07',
     })
     .returning();
 
@@ -72,7 +79,6 @@ async function main() {
       taxYear: 2025,
       regime: 'sa100',
       status: 'filed',
-      deadline: '2026-01-31',
     })
     .returning();
 
@@ -97,7 +103,7 @@ async function main() {
     taxReturnId: insertedTaxReturnMtd.id,
     submissionType: 'q_1',
     deadline: '2025-08-07',
-    status: 'filed',
+    status: 'submitted',
   });
 }
 

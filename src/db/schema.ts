@@ -11,7 +11,7 @@ import {
   unique,
   index,
 } from 'drizzle-orm/pg-core';
-import { Status, Regime, SubmissionType } from '@/types/clients';
+import { Status, Regime, SubmissionType, MtdSubmissionStatus } from '@/types/clients';
 import { DocumentType } from '@/types/documents';
 
 export const statusEnum = pgEnum('status', Object.values(Status) as [Status, ...Status[]]);
@@ -23,6 +23,11 @@ export const submissionTypeEnum = pgEnum(
   Object.values(SubmissionType) as [SubmissionType, ...SubmissionType[]],
 );
 
+export const mtdSubmissionStatusEnum = pgEnum(
+  'mtd_submission_status',
+  Object.values(MtdSubmissionStatus) as [MtdSubmissionStatus, ...MtdSubmissionStatus[]],
+);
+
 export const documentTypeEnum = pgEnum(
   'document_type',
   Object.values(DocumentType) as [DocumentType, ...DocumentType[]],
@@ -31,6 +36,7 @@ export const documentTypeEnum = pgEnum(
 export const practice = pgTable('practice', {
   id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
+  clerkUserId: text(),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp()
     .notNull()
@@ -75,7 +81,9 @@ export const taxReturn = pgTable(
     taxYear: integer().notNull(),
     regime: regimeEnum().notNull(),
     status: statusEnum().notNull(),
-    deadline: date().notNull(),
+    deadlineOverride: date(),
+    approvedAt: timestamp(),
+    approvedBy: text(),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()
@@ -100,7 +108,7 @@ export const mtdSubmission = pgTable(
       .references(() => taxReturn.id, { onDelete: 'cascade' }),
     submissionType: submissionTypeEnum().notNull(),
     deadline: date().notNull(),
-    status: statusEnum().notNull(),
+    status: mtdSubmissionStatusEnum().notNull(),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()

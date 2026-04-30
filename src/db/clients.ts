@@ -1,11 +1,20 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import type * as schema from './schema';
-import { type Client, type ClientBase, type ChecklistItem, type MTDTaxReturn, type SA100TaxReturn, Regime, Status } from '@/types/clients';
+import {
+  type Client,
+  type ClientBase,
+  type ChecklistItem,
+  type MTDTaxReturn,
+  type SA100TaxReturn,
+  Regime,
+  Status,
+  MtdSubmissionStatus,
+} from '@/types/clients';
 import { db } from './index';
 import { client, taxReturn, checklistItem, mtdSubmission } from './schema';
 import { getCurrentPracticeId } from '@/lib/auth';
-import { currentTaxYear, sa100Deadline, mtdDeadlines } from '@/lib/deadlines';
-import { mtdChecklist, sa100Checklist } from '@/lib/checklistDefaults';
+import { currentTaxYear, computeDeadline, mtdDeadlines } from '@/lib/deadlines';
+import { getDefaultChecklist } from '@/lib/checklistDefaults';
 
 type RawTaxReturn = InferSelectModel<typeof schema.taxReturn> & {
   mtdSubmissions: InferSelectModel<typeof schema.mtdSubmission>[];
@@ -45,7 +54,7 @@ function mapTaxReturn(taxReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
       id: taxReturn.id,
       startTaxYear: taxReturn.taxYear,
       status: taxReturn.status,
-      deadline: new Date(taxReturn.deadline),
+      deadline: computeDeadline(taxReturn.taxYear, Regime.sa100),
       checklist: mapChecklist(taxReturn.checklistItems),
     };
   }
@@ -130,7 +139,6 @@ export async function insertClient(input: CreateClientInput): Promise<void> {
         taxYear: currentTaxYear(),
         regime: input.regime,
         status: Status.not_started,
-        deadline: sa100Deadline(currentTaxYear()),
       })
       .returning();
 
@@ -141,12 +149,12 @@ export async function insertClient(input: CreateClientInput): Promise<void> {
           taxReturnId: newTaxReturn.id,
           submissionType: quarter.submissionType,
           deadline: quarter.deadline,
-          status: Status.not_started,
+          status: MtdSubmissionStatus.pending,
         })),
       );
     }
 
-    const checklist = input.regime === Regime.mtd ? mtdChecklist : sa100Checklist;
+    const checklist = getDefaultChecklist(input.regime);
 
     await tx.insert(checklistItem).values(
       checklist.map((item) => ({
