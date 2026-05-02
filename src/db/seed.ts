@@ -13,6 +13,8 @@ async function main() {
   });
 
   if (existingPractice) {
+    await db.delete(checklistItem).where(eq(checklistItem.practiceId, existingPractice.id));
+    await db.delete(mtdSubmission).where(eq(mtdSubmission.practiceId, existingPractice.id));
     await db.delete(taxReturn).where(eq(taxReturn.practiceId, existingPractice.id));
     await db.delete(client).where(eq(client.practiceId, existingPractice.id));
     await db.delete(practice).where(eq(practice.id, existingPractice.id));
@@ -96,7 +98,6 @@ async function main() {
       practiceId: insertedPractice.id,
       taxReturnId: insertedTaxReturnMtd.id,
       submissionType: quarter.submissionType,
-      deadline: quarter.deadline,
       status: MtdSubmissionStatus.submitted,
     })),
   );

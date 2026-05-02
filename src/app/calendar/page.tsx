@@ -1,4 +1,4 @@
-import { getDeadlineEntries } from '@/lib/deadlines';
+import { getDeadlineEntries, formatDeadline } from '@/lib/deadlines';
 import { DeadlineEntry } from '@/types/calendarModels';
 import { Fragment } from 'react';
 import StatusBadge from '@/components/StatusBadge';
@@ -8,23 +8,15 @@ export default async function Page() {
   const clients = await getClients();
   const pageData: DeadlineEntry[] = getDeadlineEntries(clients);
 
-  const groupedDeadlineEntries: Record<string, DeadlineEntry[]> = pageData.reduce(
-    (acc, entry) => {
-      const month: string = entry.deadline.toLocaleString('en-GB', {
-        month: 'long',
-        year: 'numeric',
-      });
-
-      if (!acc[month]) {
-        acc[month] = [];
-      }
-
-      acc[month].push(entry);
-
-      return acc;
-    },
-    {} as Record<string, DeadlineEntry[]>,
-  );
+  const groupedDeadlineEntries = pageData.reduce<Record<string, DeadlineEntry[]>>((acc, entry) => {
+    const month = entry.deadline.toLocaleString('en-GB', {
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
+    (acc[month] ??= []).push(entry);
+    return acc;
+  }, {});
 
   return (
     <>
@@ -62,8 +54,10 @@ export default async function Page() {
                     className="border-b border-slate-100 transition-colors hover:bg-slate-50"
                   >
                     <td className="py-3 pr-5">{entry.name}</td>
-                    <td className="py-3 pr-5">{entry.deadline.toLocaleDateString('en-GB')}</td>
-                    <td className="py-3 pr-5">{entry.taxYearLabel}</td>
+                    <td className="py-3 pr-5">{formatDeadline(entry.deadline)}</td>
+                    <td className="py-3 pr-5">
+                      {entry.taxYear}/{entry.taxYear + 1}
+                    </td>
                     <td className="py-3 pr-5">
                       <StatusBadge status={entry.status} />
                     </td>

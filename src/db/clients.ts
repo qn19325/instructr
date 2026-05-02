@@ -36,24 +36,31 @@ function mapChecklist(items: InferSelectModel<typeof schema.checklistItem>[]): C
 
 function mapTaxReturn(taxReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
   if (taxReturn.regime === Regime.mtd) {
+    const deadlinesByType = Object.fromEntries(
+      mtdDeadlines(taxReturn.taxYear).map((d) => [d.submissionType, d.deadline]),
+    );
     return {
       type: 'mtd' as const,
       id: taxReturn.id,
-      startTaxYear: taxReturn.taxYear,
+      taxYear: taxReturn.taxYear,
       status: taxReturn.status,
-      submissions: taxReturn.mtdSubmissions.map((submission) => ({
-        id: submission.id,
-        submissionType: submission.submissionType,
-        deadline: new Date(submission.deadline),
-        status: submission.status,
-      })),
+      submissions: taxReturn.mtdSubmissions.map((submission) => {
+        const deadlineStr = deadlinesByType[submission.submissionType];
+        if (!deadlineStr) throw new Error(`No deadline for submission type: ${submission.submissionType}`);
+        return {
+          id: submission.id,
+          submissionType: submission.submissionType,
+          deadline: new Date(deadlineStr),
+          status: submission.status,
+        };
+      }),
       checklist: mapChecklist(taxReturn.checklistItems),
     };
   } else {
     return {
       type: 'sa100' as const,
       id: taxReturn.id,
-      startTaxYear: taxReturn.taxYear,
+      taxYear: taxReturn.taxYear,
       status: taxReturn.status,
       deadline: sa100Deadline(taxReturn.taxYear),
       checklist: mapChecklist(taxReturn.checklistItems),
@@ -143,7 +150,6 @@ export async function insertClient(input: CreateClientInput): Promise<void> {
           practiceId,
           taxReturnId: newTaxReturn.id,
           submissionType: quarter.submissionType,
-          deadline: quarter.deadline,
           status: MtdSubmissionStatus.pending,
         })),
       );

@@ -28,13 +28,21 @@ export default function Modal({ title, children, isOpen, onClose }: ModalProps) 
 
   useEffect(() => {
     if (!isOpen) return;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
 
     const panel = panelRef.current;
     if (!panel) return;
 
     const elems = Array.from(
       panel.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
       ),
     );
 

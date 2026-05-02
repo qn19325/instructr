@@ -4,8 +4,7 @@ interface DeadlineEntryBase {
   name: string;
   id: string;
   deadline: Date;
-  startTaxYear: number;
-  taxYearLabel: string;
+  taxYear: number;
 }
 
 export interface MTDDeadlineEntry extends DeadlineEntryBase {

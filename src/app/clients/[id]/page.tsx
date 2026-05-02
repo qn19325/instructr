@@ -25,7 +25,6 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
       <table className="w-full">
         <thead>
           <tr className="border-b border-slate-200 text-left text-xs font-medium tracking-wide text-slate-400 uppercase">
-            <th className="pr-5 pb-2">Name</th>
             <th className="pr-5 pb-2">Deadline</th>
             <th className="pr-5 pb-2">Status</th>
             <th className="pr-5 pb-2">Tax Year</th>
@@ -34,9 +33,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         </thead>
         <tbody>
           {clientRecord.taxReturns.map((taxReturn) => {
-            return (
-              <TaxReturnCard key={taxReturn.id} name={clientRecord.firstName} {...taxReturn} />
-            );
+            return <TaxReturnCard key={taxReturn.id} {...taxReturn} />;
           })}
         </tbody>
       </table>

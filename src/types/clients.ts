@@ -45,7 +45,7 @@ export interface Client extends ClientBase {
 
 interface TaxReturn {
   id: string;
-  startTaxYear: number;
+  taxYear: number;
   checklist: ChecklistItem[];
   status: Status;
 }
