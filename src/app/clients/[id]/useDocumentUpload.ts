@@ -1,5 +1,5 @@
-import { getUploadUrl, recordUpload } from '@/app/clients/actions';
 import { useState } from 'react';
+import { getUploadUrl, recordUpload } from './actions';
 
 export function useDocumentUpload() {
   const [isUploading, setIsUploading] = useState(false);
@@ -15,7 +15,7 @@ export function useDocumentUpload() {
         body: file,
         headers: { 'Content-Type': file.type },
       });
-      if (!res.ok) throw new Error('Could not fetch document');
+      if (!res.ok) throw new Error('Upload to storage failed');
       await recordUpload(checklistItemId, r2Key, file.name, file.type, file.size);
     } catch (e) {
       const errMessage = e instanceof Error ? e.message : 'Upload Failed';

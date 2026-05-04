@@ -1,5 +1,5 @@
 import { db } from './index';
-import { document } from './schema';
+import { document, r2PendingDelete } from './schema';
 import { eq } from 'drizzle-orm';
 
 export interface InsertDocumentInput {
@@ -22,19 +22,19 @@ export async function insertDocument(input: InsertDocumentInput): Promise<void> 
   });
 }
 
-export async function deleteDocument(documentId: string) {
-  const [deleted] = await db.delete(document).where(eq(document.id, documentId)).returning();
-  return deleted;
-}
-
-export async function getDocumentByChecklistItemId(checklistItemId: string) {
-  return await db.query.document.findFirst({
-    where: (table, { eq }) => eq(table.checklistItemId, checklistItemId),
-  });
-}
-
-export async function getDocument(documentId: string) {
+export async function getDocument(
+  documentId: string,
+): Promise<typeof document.$inferSelect | undefined> {
   return await db.query.document.findFirst({
     where: (table, { eq }) => eq(table.id, documentId),
   });
+}
+
+// No practiceId filter — this is a global cron operation that processes all practices.
+export async function getPendingDeletes(): Promise<(typeof r2PendingDelete.$inferSelect)[]> {
+  return await db.select().from(r2PendingDelete);
+}
+
+export async function deletePendingDelete(r2Key: string): Promise<void> {
+  await db.delete(r2PendingDelete).where(eq(r2PendingDelete.r2Key, r2Key));
 }

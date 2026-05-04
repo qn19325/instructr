@@ -1,4 +1,4 @@
-import { eq, type InferSelectModel } from 'drizzle-orm';
+import { and, eq, type InferSelectModel } from 'drizzle-orm';
 import type * as schema from './schema';
 import {
   type Client,
@@ -11,7 +11,8 @@ import {
   MtdSubmissionStatus,
 } from '@/types/clients';
 import { db } from './index';
-import { client, taxReturn, checklistItem, mtdSubmission } from './schema';
+import { client, taxReturn, checklistItem, mtdSubmission, document, r2PendingDelete } from './schema';
+import type { InsertDocumentInput } from './documents';
 import { getCurrentPracticeId } from '@/lib/auth';
 import { currentTaxYear, sa100Deadline, mtdDeadlines } from '@/lib/deadlines';
 import { getDefaultChecklist } from '@/lib/checklistDefaults';
@@ -190,6 +191,42 @@ export async function insertClient(input: CreateClientInput): Promise<void> {
   });
 }
 
-export async function markChecklistItemDone(id: string): Promise<void> {
-  await db.update(checklistItem).set({ done: true }).where(eq(checklistItem.id, id));
+export async function markChecklistItemDone(id: string, practiceId: string): Promise<void> {
+  await db
+    .update(checklistItem)
+    .set({ done: true })
+    .where(and(eq(checklistItem.id, id), eq(checklistItem.practiceId, practiceId)));
+}
+
+export async function getChecklistItem(
+  id: string,
+  practiceId: string,
+): Promise<InferSelectModel<typeof schema.checklistItem> | undefined> {
+  return await db.query.checklistItem.findFirst({
+    where: (table, { eq, and }) => and(eq(table.id, id), eq(table.practiceId, practiceId)),
+  });
+}
+
+export async function recordDocumentUpload(
+  input: InsertDocumentInput,
+): Promise<{ oldR2Key: string | null }> {
+  return await db.transaction(async (tx) => {
+    const existing = await tx.query.document.findFirst({
+      where: (table, { eq }) => eq(table.checklistItemId, input.checklistItemId),
+    });
+
+    if (existing) {
+      await tx.delete(document).where(eq(document.id, existing.id));
+      await tx.insert(r2PendingDelete).values({ practiceId: input.practiceId, r2Key: existing.r2Key });
+    }
+
+    await tx.insert(document).values({ ...input });
+
+    await tx
+      .update(checklistItem)
+      .set({ done: true })
+      .where(and(eq(checklistItem.id, input.checklistItemId), eq(checklistItem.practiceId, input.practiceId)));
+
+    return { oldR2Key: existing?.r2Key ?? null };
+  });
 }

@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Active phase: C — File Storage**
-**Next step: C8 — checklist UI (upload button, spinner, filename/download link). C1–C7 complete.**
+**Active phase: D — AI Preparation Layer**
+**Phase C complete. Document storage live — upload, download, replace flow, client-side + server-side validation all working.**
 **Phase A shell deployed (no DB):** https://business-application-dun.vercel.app
 
 ---

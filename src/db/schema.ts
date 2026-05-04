@@ -160,7 +160,10 @@ export const document = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (table) => [unique().on(table.checklistItemId)],
+  (table) => [
+    index('document_practice_id_idx').on(table.practiceId),
+    unique().on(table.checklistItemId),
+  ],
 );
 
 export const practiceRelations = relations(practice, ({ many }) => ({
@@ -194,7 +197,7 @@ export const checklistItemRelations = relations(checklistItem, ({ one }) => ({
   }),
   document: one(document, {
     fields: [checklistItem.id],
-    references: [document.id],
+    references: [document.checklistItemId],
   }),
 }));
 
@@ -204,3 +207,16 @@ export const documentRelations = relations(document, ({ one }) => ({
     references: [checklistItem.id],
   }),
 }));
+
+export const r2PendingDelete = pgTable(
+  'r2_pending_delete',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    practiceId: uuid()
+      .notNull()
+      .references(() => practice.id, { onDelete: 'restrict' }),
+    r2Key: text().notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (table) => [unique().on(table.r2Key)],
+);
