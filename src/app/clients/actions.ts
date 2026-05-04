@@ -104,6 +104,7 @@ export async function recordUpload(
   }
 
   await markChecklistItemDone(checklistItemId);
+  revalidatePath('/clients', 'layout');
 }
 
 export async function getDownloadUrl(documentId: string) {
