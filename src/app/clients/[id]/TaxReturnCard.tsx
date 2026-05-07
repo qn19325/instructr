@@ -7,15 +7,15 @@ import { useRef, useState } from 'react';
 import { formatDeadline, nextDeadline } from '@/lib/deadlines';
 import { useDocumentUpload } from './useDocumentUpload';
 import { getDocumentDownloadUrl } from './actions';
-import { ALLOWED_TYPES, validateDocument } from '@/lib/documents';
+import { ALLOWED_TYPES } from '@/lib/documents';
 
 export type TaxReturnCardProps = SA100TaxReturn | MTDTaxReturn;
 
 function ChecklistRow({ item }: { item: ChecklistItem }) {
-  const { upload, isUploading, error: uploadError } = useDocumentUpload();
-  const [fileError, setFileError] = useState<string | null>(null);
+  const { upload, state } = useDocumentUpload();
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const doc = item.document;
 
   return (
     <div className="flex items-center gap-2 py-1 text-sm text-slate-600">
@@ -26,46 +26,38 @@ function ChecklistRow({ item }: { item: ChecklistItem }) {
         type="file"
         className="hidden"
         onChange={(e) => {
-          setFileError(null);
           const file = e.target.files?.[0];
-          if (file) {
-            const isDocumentValid = validateDocument({
-              mimeType: file.type,
-              size: file.size,
-            });
-            if (!isDocumentValid.valid) {
-              setFileError(isDocumentValid.error);
-              return;
-            }
-
-            upload(file, item.id);
-          }
+          if (file) upload(file, item.id);
         }}
         accept={ALLOWED_TYPES.join(',')}
       />
-      <button type="button" onClick={() => inputRef.current?.click()} disabled={isUploading}>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={state.state !== 'idle' && state.state !== 'done'}
+      >
         Upload
       </button>
-      {item.document && (
+      {doc && (
         <button
           type="button"
           onClick={async () => {
-            if (!item.document) return;
             try {
               setDownloadError(null);
-              const url = await getDocumentDownloadUrl(item.document.id);
+              const url = await getDocumentDownloadUrl(doc.id);
               window.open(url, '_blank');
             } catch {
               setDownloadError('Download failed');
             }
           }}
         >
-          {item.document.originalFileName}
+          {doc.originalFileName}
         </button>
       )}
-      {isUploading && <span>Uploading...</span>}
-      {uploadError && <span className="text-red-500">{uploadError}</span>}
-      {fileError && <span className="text-red-500">{fileError}</span>}
+      {(state.state === 'validating' ||
+        state.state === 'uploading' ||
+        state.state === 'recording') && <span>{`${state.state}...`}</span>}
+      {state.state === 'error' && <span className="text-red-500">{state.message}</span>}
       {downloadError && <span className="text-red-500">{downloadError}</span>}
     </div>
   );

@@ -1,29 +1,62 @@
 import { useState } from 'react';
 import { getUploadUrl, recordUpload } from './actions';
+import { UploadErrorType, UploadState } from './uploadState';
 
 export function useDocumentUpload() {
-  const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [uploadState, setUploadState] = useState<UploadState>({ state: 'idle' });
 
   async function upload(file: File, checklistItemId: string) {
-    setIsUploading(true);
-    setError(null);
+    let uploadUrl = '';
+    let documentKey = '';
+
     try {
-      const { uploadUrl, documentKey } = await getUploadUrl(checklistItemId, file.type, file.size);
+      setUploadState({ state: 'validating' });
+      const res = await getUploadUrl(checklistItemId, file.type, file.size);
+      uploadUrl = res.uploadUrl;
+      documentKey = res.documentKey;
+    } catch {
+      setUploadState({
+        state: 'error',
+        type: UploadErrorType.validation,
+        message: 'Failed to validate',
+      });
+      return;
+    }
+
+    try {
+      setUploadState({ state: 'uploading' });
       const res = await fetch(uploadUrl, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type },
       });
-      if (!res.ok) throw new Error('Upload to storage failed');
-      await recordUpload(checklistItemId, documentKey, file.name, file.type, file.size);
-    } catch (e) {
-      const errMessage = e instanceof Error ? e.message : 'Upload Failed';
-      setError(errMessage);
-    } finally {
-      setIsUploading(false);
+      if (!res.ok) {
+        setUploadState({
+          state: 'error',
+          type: UploadErrorType.storage,
+          message: 'Upload to storage failed',
+        });
+        return;
+      }
+    } catch {
+      setUploadState({ state: 'error', type: 'storage', message: 'Upload to storage failed' });
+      return;
     }
+
+    try {
+      setUploadState({ state: 'recording' });
+      await recordUpload(checklistItemId, documentKey, file.name, file.type, file.size);
+    } catch {
+      setUploadState({
+        state: 'error',
+        type: UploadErrorType.record,
+        message: 'Failed to record upload',
+      });
+      return;
+    }
+
+    setUploadState({ state: 'done' });
   }
 
-  return { upload, isUploading, error };
+  return { upload, state: uploadState };
 }
