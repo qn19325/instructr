@@ -2,23 +2,16 @@ import { type InferSelectModel } from 'drizzle-orm';
 import type * as schema from './schema';
 import {
   type Client,
-  type ClientBase,
   type ChecklistItem,
-  type MTDTaxReturn,
-  type SA100TaxReturn,
   Regime,
   Status,
   MtdSubmissionStatus,
+  TaxReturn,
 } from '@/types/clients';
 import { db } from './index';
 import { client, taxReturn, checklistItem, mtdSubmission } from './schema';
 import { getCurrentPracticeId } from '@/lib/auth';
-import {
-  currentTaxYear,
-  sa100Deadline,
-  mtdDeadlines,
-  mtdSubmissionDeadlines,
-} from '@/lib/deadlines';
+import { currentTaxYear, mtdSubmissionTypes } from '@/lib/tax-return';
 import { getDefaultChecklist } from '@/lib/checklistDefaults';
 import { CreateClientInput } from '@/schemas/clients';
 
@@ -51,23 +44,17 @@ function mapChecklist(items: RawChecklistItem[]): ChecklistItem[] {
   }));
 }
 
-function mapTaxReturn(rawReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
+function mapTaxReturn(rawReturn: RawTaxReturn): TaxReturn {
   if (rawReturn.regime === Regime.mtd) {
-    const deadlines = mtdSubmissionDeadlines(rawReturn.taxYear);
     return {
-      type: Regime.mtd,
+      regime: Regime.mtd,
       id: rawReturn.id,
       taxYear: rawReturn.taxYear,
       status: rawReturn.status,
       submissions: rawReturn.mtdSubmissions.map((submission) => {
-        const deadline = deadlines.find((val) => val.submissionType === submission.submissionType);
-        if (!deadline) {
-          throw new Error('Error finding deadline');
-        }
         return {
           id: submission.id,
           submissionType: submission.submissionType,
-          deadline: deadline.deadline,
           status: submission.status,
         };
       }),
@@ -75,28 +62,23 @@ function mapTaxReturn(rawReturn: RawTaxReturn): MTDTaxReturn | SA100TaxReturn {
     };
   } else {
     return {
-      type: Regime.sa100,
+      regime: Regime.sa100,
       id: rawReturn.id,
       taxYear: rawReturn.taxYear,
       status: rawReturn.status,
-      deadline: sa100Deadline(rawReturn.taxYear),
       checklist: mapChecklist(rawReturn.checklistItems),
     };
   }
 }
 
 function mapClient(cli: RawClient): Client {
-  const base: ClientBase = {
+  return {
     id: cli.id,
     niNumber: cli.niNumber,
     firstName: cli.firstName,
     lastName: cli.lastName,
     email: cli.email ?? undefined,
     phoneNumber: cli.phoneNumber ?? undefined,
-  };
-
-  return {
-    ...base,
     taxReturns: cli.taxReturns.map((taxReturn) => mapTaxReturn(taxReturn)),
   };
 }
@@ -173,10 +155,10 @@ export async function insertClient(input: CreateClientInput): Promise<void> {
 
     if (input.regime === Regime.mtd) {
       await tx.insert(mtdSubmission).values(
-        mtdDeadlines(currentTaxYear()).map((quarter) => ({
+        mtdSubmissionTypes().map((submissionType) => ({
           practiceId,
           taxReturnId: newTaxReturn.id,
-          submissionType: quarter.submissionType,
+          submissionType,
           status: MtdSubmissionStatus.pending,
         })),
       );

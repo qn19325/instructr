@@ -1,25 +1,17 @@
-import { Client, Status, Regime } from '@/types/clients';
+import { Client, Status } from '@/types/clients';
 import StatusBadge from '@/components/StatusBadge';
 import Link from 'next/link';
-import { formatDeadline, nextDeadline } from '@/lib/deadlines';
+import { firstUnfiledReturn, formatDeadline, nextDeadline, regimeLabel } from '@/lib/tax-return';
 
 interface ClientListItemProps {
   client: Client;
 }
 
 export default function ClientListItem(props: ClientListItemProps) {
-  const firstUnfiledReturn = props.client.taxReturns.find(
-    (taxReturn) => taxReturn.status !== Status.filed,
-  );
-  const deadlineDate = firstUnfiledReturn ? nextDeadline(firstUnfiledReturn) : null;
-  const status = firstUnfiledReturn ? firstUnfiledReturn.status : Status.filed;
+  const unfiledReturn = firstUnfiledReturn(props.client.taxReturns);
+  const deadlineDate = unfiledReturn ? nextDeadline(unfiledReturn) : null;
   const mostRecentReturn = props.client.taxReturns.at(-1);
-  const regimeLabel =
-    mostRecentReturn?.type === Regime.mtd
-      ? 'MTD'
-      : mostRecentReturn?.type === Regime.sa100
-        ? 'SA100'
-        : '—';
+  const label = mostRecentReturn ? regimeLabel(mostRecentReturn) : '—';
 
   return (
     <tr className="border-b border-slate-100 transition-colors hover:bg-slate-50">
@@ -28,10 +20,10 @@ export default function ClientListItem(props: ClientListItemProps) {
           {props.client.firstName} {props.client.lastName}
         </Link>
       </td>
-      <td className="py-3 pr-5">{regimeLabel}</td>
+      <td className="py-3 pr-5">{label}</td>
       <td className="py-3 pr-5">{deadlineDate ? formatDeadline(deadlineDate) : ''}</td>
       <td className="py-3 pr-5">
-        <StatusBadge status={status} />
+        <StatusBadge status={unfiledReturn ? unfiledReturn.status : Status.filed} />
       </td>
     </tr>
   );

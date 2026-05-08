@@ -32,41 +32,38 @@ export const SubmissionType = {
 } as const;
 export type SubmissionType = (typeof SubmissionType)[keyof typeof SubmissionType];
 
-export interface ClientBase {
+export interface Client {
   id: string;
   niNumber: string; // e.g. AB 12 34 56 C
   firstName: string;
   lastName: string;
   email?: string;
   phoneNumber?: string;
+  taxReturns: TaxReturn[];
 }
 
-export interface Client extends ClientBase {
-  taxReturns: (SA100TaxReturn | MTDTaxReturn)[];
-}
-
-interface TaxReturn {
+export interface TaxReturnBase {
   id: string;
   taxYear: number;
   checklist: ChecklistItem[];
   status: Status;
 }
 
-export interface MTDTaxReturn extends TaxReturn {
-  type: 'mtd';
+export interface SA100TaxReturn extends TaxReturnBase {
+  regime: typeof Regime.sa100;
+}
+
+export interface MTDTaxReturn extends TaxReturnBase {
+  regime: typeof Regime.mtd;
   submissions: MTDSubmission[];
 }
+
+export type TaxReturn = SA100TaxReturn | MTDTaxReturn;
 
 export interface MTDSubmission {
   submissionType: SubmissionType;
   id: string;
-  deadline: Date;
   status: MtdSubmissionStatus;
-}
-
-export interface SA100TaxReturn extends TaxReturn {
-  type: 'sa100';
-  deadline: Date;
 }
 
 export interface ChecklistItem {

@@ -2,7 +2,7 @@ import { db } from './index';
 import { client, practice, taxReturn, checklistItem, mtdSubmission } from './schema';
 import { eq } from 'drizzle-orm';
 import { Regime, Status, MtdSubmissionStatus } from '@/types/clients';
-import { currentTaxYear, mtdDeadlines } from '@/lib/deadlines';
+import { currentTaxYear, mtdSubmissionTypes } from '@/lib/tax-return';
 import { getDefaultChecklist } from '@/lib/checklistDefaults';
 
 const SEED_PRACTICE_NAME = 'Warwick & Co';
@@ -94,10 +94,10 @@ async function main() {
   );
 
   await db.insert(mtdSubmission).values(
-    mtdDeadlines(taxYear).map((quarter) => ({
+    mtdSubmissionTypes().map((submissionType) => ({
       practiceId: insertedPractice.id,
       taxReturnId: insertedTaxReturnMtd.id,
-      submissionType: quarter.submissionType,
+      submissionType,
       status: MtdSubmissionStatus.submitted,
     })),
   );

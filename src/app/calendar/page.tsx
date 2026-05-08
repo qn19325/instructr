@@ -1,4 +1,4 @@
-import { getDeadlineEntries, formatDeadline } from '@/lib/deadlines';
+import { getDeadlineEntries, formatDeadline } from '@/lib/tax-return';
 import { DeadlineEntry } from '@/types/calendarModels';
 import { Fragment } from 'react';
 import StatusBadge from '@/components/StatusBadge';

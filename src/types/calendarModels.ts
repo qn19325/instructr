@@ -1,4 +1,4 @@
-import { Status, MtdSubmissionStatus, SubmissionType } from './clients';
+import { Regime, Status, MtdSubmissionStatus, SubmissionType } from './clients';
 
 interface DeadlineEntryBase {
   name: string;
@@ -8,13 +8,13 @@ interface DeadlineEntryBase {
 }
 
 export interface MTDDeadlineEntry extends DeadlineEntryBase {
-  type: 'mtd';
+  regime: typeof Regime.mtd;
   status: MtdSubmissionStatus;
   submissionType: SubmissionType;
 }
 
 export interface SA100DeadlineEntry extends DeadlineEntryBase {
-  type: 'sa100';
+  regime: typeof Regime.sa100;
   status: Status;
 }
 

@@ -6,6 +6,7 @@
 **Phase C complete. Document storage live — upload, download, replace flow, client-side + server-side validation all working.**
 **All 4 Phase C architecture improvement candidates complete. Lifecycle module, Storage module, Deadline Computation module, Document Validation consolidation — all done.**
 **All 3 Phase D architecture candidates complete. NI regex constants exported, `lib/clients.ts` deleted, document types consolidated into `types/documents.ts`.**
+**Architecture improvement candidates (post-Phase D review): 1/2 done. Issue 1 — upload state machine — complete. Issue 2 (Tax return module owning Deadlines + Regime dispatch — merged from prior issues 2 and 3) pending.**
 **Next: Phase D feature work. See `wiki/topics/application-build-phases.md`.**
 **Phase A shell deployed (no DB):** https://business-application-dun.vercel.app
 

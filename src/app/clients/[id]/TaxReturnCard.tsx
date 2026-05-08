@@ -2,14 +2,12 @@
 
 import ColorDot from '@/components/ColorDot';
 import StatusBadge from '@/components/StatusBadge';
-import { ChecklistItem, MTDTaxReturn, SA100TaxReturn } from '@/types/clients';
+import { ChecklistItem, TaxReturn } from '@/types/clients';
 import { useRef, useState } from 'react';
-import { formatDeadline, nextDeadline } from '@/lib/deadlines';
+import { formatDeadline, nextDeadline, regimeLabel } from '@/lib/tax-return';
 import { useDocumentUpload } from './useDocumentUpload';
 import { getDocumentDownloadUrl } from './actions';
 import { ALLOWED_TYPES } from '@/lib/documents';
-
-export type TaxReturnCardProps = SA100TaxReturn | MTDTaxReturn;
 
 function ChecklistRow({ item }: { item: ChecklistItem }) {
   const { upload, state } = useDocumentUpload();
@@ -34,7 +32,7 @@ function ChecklistRow({ item }: { item: ChecklistItem }) {
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        disabled={state.state !== 'idle' && state.state !== 'done'}
+        disabled={state.phase !== 'idle' && state.phase !== 'done'}
       >
         Upload
       </button>
@@ -54,16 +52,16 @@ function ChecklistRow({ item }: { item: ChecklistItem }) {
           {doc.originalFileName}
         </button>
       )}
-      {(state.state === 'validating' ||
-        state.state === 'uploading' ||
-        state.state === 'recording') && <span>{`${state.state}...`}</span>}
-      {state.state === 'error' && <span className="text-red-500">{state.message}</span>}
+      {(state.phase === 'validating' ||
+        state.phase === 'uploading' ||
+        state.phase === 'recording') && <span>{`${state.phase}...`}</span>}
+      {state.phase === 'error' && <span className="text-red-500">{state.message}</span>}
       {downloadError && <span className="text-red-500">{downloadError}</span>}
     </div>
   );
 }
 
-export default function TaxReturnCard(props: TaxReturnCardProps) {
+export default function TaxReturnCard(props: TaxReturn) {
   const [isExpanded, setIsExpanded] = useState(false);
   const deadlineDate = nextDeadline(props);
 
@@ -78,7 +76,7 @@ export default function TaxReturnCard(props: TaxReturnCardProps) {
           <StatusBadge status={props.status} />
         </td>
         <td className="py-3 pr-5">{props.taxYear}</td>
-        <td className="py-3 pr-5">{props.type}</td>
+        <td className="py-3 pr-5">{regimeLabel(props)}</td>
       </tr>
       {isExpanded && (
         <tr>
