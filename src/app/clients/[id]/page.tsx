@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import TaxReturnCard from './TaxReturnCard';
 import { getClientById } from '@/db/clients';
+import AddTaxReturnModal from './AddTaxReturnModal';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
@@ -21,6 +22,10 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           {clientRecord.email && <span>{clientRecord.email}</span>}
           <span className="font-mono">{clientRecord.niNumber}</span>
         </div>
+        <AddTaxReturnModal
+          clientId={clientRecord.id}
+          existingTaxReturns={clientRecord.taxReturns}
+        />
       </div>
       <table className="w-full">
         <thead>

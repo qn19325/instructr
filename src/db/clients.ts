@@ -14,6 +14,7 @@ import { getCurrentPracticeId } from '@/lib/auth';
 import { currentTaxYear, mtdSubmissionTypes } from '@/lib/tax-return';
 import { getDefaultChecklist } from '@/lib/checklistDefaults';
 import { CreateClientInput } from '@/schemas/clients';
+import { CreateTaxReturnInput } from '@/schemas/taxReturn';
 
 type RawChecklistItem = InferSelectModel<typeof schema.checklistItem> & {
   document: InferSelectModel<typeof schema.document> | null;
@@ -127,6 +128,36 @@ export async function getClientById(id: string): Promise<Client | null> {
     .then((cli) => (cli ? mapClient(cli) : null));
 }
 
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function seedTaxReturnRows(
+  tx: Tx,
+  { practiceId, taxReturnId, regime }: { practiceId: string; taxReturnId: string; regime: Regime },
+): Promise<void> {
+  if (regime === Regime.mtd) {
+    await tx.insert(mtdSubmission).values(
+      mtdSubmissionTypes().map((submissionType) => ({
+        practiceId,
+        taxReturnId,
+        submissionType,
+        status: MtdSubmissionStatus.pending,
+      })),
+    );
+  }
+
+  const checklist = getDefaultChecklist(regime);
+
+  await tx.insert(checklistItem).values(
+    checklist.map((item) => ({
+      practiceId,
+      taxReturnId,
+      documentType: item.documentType,
+      label: item.label,
+      done: false,
+    })),
+  );
+}
+
 export async function insertClient(input: CreateClientInput): Promise<void> {
   const practiceId = await getCurrentPracticeId();
   await db.transaction(async (tx) => {
@@ -153,29 +184,45 @@ export async function insertClient(input: CreateClientInput): Promise<void> {
       })
       .returning();
 
-    if (input.regime === Regime.mtd) {
-      await tx.insert(mtdSubmission).values(
-        mtdSubmissionTypes().map((submissionType) => ({
-          practiceId,
-          taxReturnId: newTaxReturn.id,
-          submissionType,
-          status: MtdSubmissionStatus.pending,
-        })),
-      );
-    }
-
-    const checklist = getDefaultChecklist(input.regime);
-
-    await tx.insert(checklistItem).values(
-      checklist.map((item) => ({
-        practiceId,
-        taxReturnId: newTaxReturn.id,
-        documentType: item.documentType,
-        label: item.label,
-        done: false,
-      })),
-    );
+    await seedTaxReturnRows(tx, { practiceId, taxReturnId: newTaxReturn.id, regime: input.regime });
   });
+}
+
+export async function insertTaxReturn(input: CreateTaxReturnInput): Promise<void> {
+  const practiceId = await getCurrentPracticeId();
+  await db.transaction(async (tx) => {
+    const [newTaxReturn] = await tx
+      .insert(taxReturn)
+      .values({
+        practiceId,
+        clientId: input.clientId,
+        taxYear: input.taxYear,
+        regime: input.regime,
+        status: Status.not_started,
+      })
+      .returning();
+
+    await seedTaxReturnRows(tx, { practiceId, taxReturnId: newTaxReturn.id, regime: input.regime });
+  });
+}
+
+export async function taxReturnExists(
+  clientId: string,
+  taxYear: number,
+  regime: Regime,
+): Promise<boolean> {
+  const practiceId = await getCurrentPracticeId();
+  const result = await db.query.taxReturn.findFirst({
+    where: (table, { eq, and }) =>
+      and(
+        eq(table.practiceId, practiceId),
+        eq(table.clientId, clientId),
+        eq(table.taxYear, taxYear),
+        eq(table.regime, regime),
+      ),
+    columns: { id: true },
+  });
+  return !!result;
 }
 
 export async function getChecklistItem(
