@@ -4,8 +4,10 @@ import { useActionState, useEffect, useState } from 'react';
 import { Regime, TaxReturn } from '@/types/clients';
 import { createTaxReturn } from './actions';
 import { currentTaxYear } from '@/lib/tax-return';
-
-const labelClass = 'block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1';
+import { labelClass } from '@/lib/form-styles';
+import FormError from '@/components/FormError';
+import FieldError from '@/components/FieldError';
+import FormActions from '@/components/FormActions';
 
 interface AddTaxReturnFormProps {
   clientId: string;
@@ -22,6 +24,8 @@ export default function AddTaxReturnForm({
   const [selectedRegime, setSelectedRegime] = useState<Regime>(Regime.sa100);
   const curTaxYear = currentTaxYear();
   const years = [curTaxYear - 3, curTaxYear - 2, curTaxYear - 1, curTaxYear, curTaxYear + 1];
+  const fieldErrors = state?.success === false ? state.fieldErrors : undefined;
+  const formError = state?.success === false ? state.error : undefined;
 
   useEffect(() => {
     if (state?.success) onClose();
@@ -29,11 +33,7 @@ export default function AddTaxReturnForm({
 
   return (
     <>
-      {state && !state.success && (
-        <div className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-          {state.error}
-        </div>
-      )}
+      <FormError error={formError} />
       <form action={formAction}>
         <fieldset disabled={isPending} className="space-y-4">
           <input type="hidden" name="clientId" value={clientId} />
@@ -55,9 +55,7 @@ export default function AddTaxReturnForm({
                   </option>
                 ))}
               </select>
-              {state && !state.success && state.fieldErrors?.['taxYear'] && (
-                <p className="mt-1 text-xs text-red-600">{state.fieldErrors['taxYear']}</p>
-              )}
+              <FieldError fieldErrors={fieldErrors} name="taxYear" />
             </div>
           </div>
           <fieldset>
@@ -83,28 +81,11 @@ export default function AddTaxReturnForm({
                 MTD
               </label>
             </div>
-            {state && !state.success && state.fieldErrors?.['regime'] && (
-              <p className="mt-1 text-xs text-red-600">{state.fieldErrors['regime']}</p>
-            )}
+            <FieldError fieldErrors={fieldErrors} name="regime" />
           </fieldset>
         </fieldset>
 
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm text-slate-500 hover:text-slate-800"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {isPending ? 'Saving...' : 'Add Tax Return'}
-          </button>
-        </div>
+        <FormActions onClose={onClose} isPending={isPending} submitLabel="Add Tax Return" />
       </form>
     </>
   );

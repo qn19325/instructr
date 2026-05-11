@@ -3,11 +3,10 @@
 import { useActionState, useEffect } from 'react';
 import { NI_NUMBER_PATTERN } from '@/schemas/clients';
 import { editClient } from './actions';
-
-const inputClass =
-  'w-full rounded-md border border-slate-200 px-3 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500';
-
-const labelClass = 'block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1';
+import { labelClass, inputClass } from '@/lib/form-styles';
+import FormError from '@/components/FormError';
+import FieldError from '@/components/FieldError';
+import FormActions from '@/components/FormActions';
 
 interface EditClientFormProps {
   clientId: string;
@@ -29,6 +28,8 @@ export default function EditClientForm({
   onClose,
 }: EditClientFormProps) {
   const [state, formAction, isPending] = useActionState(editClient, null);
+  const fieldErrors = state?.success === false ? state.fieldErrors : undefined;
+  const formError = state?.success === false ? state.error : undefined;
 
   useEffect(() => {
     if (state?.success) onClose();
@@ -36,11 +37,7 @@ export default function EditClientForm({
 
   return (
     <>
-      {state && !state.success && (
-        <div className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-          {state.error}
-        </div>
-      )}
+      <FormError error={formError} />
       <form action={formAction}>
         <fieldset disabled={isPending} className="space-y-4">
           <input type="hidden" name="clientId" value={clientId} />
@@ -57,9 +54,7 @@ export default function EditClientForm({
                 className={inputClass}
                 defaultValue={firstName}
               />
-              {state && !state.success && state.fieldErrors?.['firstName'] && (
-                <p className="mt-1 text-xs text-red-600">{state.fieldErrors['firstName']}</p>
-              )}
+              <FieldError fieldErrors={fieldErrors} name="firstName" />
             </div>
             <div>
               <label className={labelClass} htmlFor="lastName">
@@ -73,9 +68,7 @@ export default function EditClientForm({
                 className={inputClass}
                 defaultValue={lastName}
               />
-              {state && !state.success && state.fieldErrors?.['lastName'] && (
-                <p className="mt-1 text-xs text-red-600">{state.fieldErrors['lastName']}</p>
-              )}
+              <FieldError fieldErrors={fieldErrors} name="lastName" />
             </div>
           </div>
           <div>
@@ -93,9 +86,7 @@ export default function EditClientForm({
               className={`${inputClass} font-mono`}
               defaultValue={niNumber}
             />
-            {state && !state.success && state.fieldErrors?.['niNumber'] && (
-              <p className="mt-1 text-xs text-red-600">{state.fieldErrors['niNumber']}</p>
-            )}
+            <FieldError fieldErrors={fieldErrors} name="niNumber" />
           </div>
           <div>
             <label className={labelClass} htmlFor="email">
@@ -108,9 +99,7 @@ export default function EditClientForm({
               className={inputClass}
               defaultValue={email}
             />
-            {state && !state.success && state.fieldErrors?.['email'] && (
-              <p className="mt-1 text-xs text-red-600">{state.fieldErrors['email']}</p>
-            )}
+            <FieldError fieldErrors={fieldErrors} name="email" />
           </div>
           <div>
             <label className={labelClass} htmlFor="phoneNumber">
@@ -123,28 +112,11 @@ export default function EditClientForm({
               className={inputClass}
               defaultValue={phone}
             />
-            {state && !state.success && state.fieldErrors?.['phoneNumber'] && (
-              <p className="mt-1 text-xs text-red-600">{state.fieldErrors['phoneNumber']}</p>
-            )}
+            <FieldError fieldErrors={fieldErrors} name="phoneNumber" />
           </div>
         </fieldset>
 
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm text-slate-500 hover:text-slate-800"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {isPending ? 'Saving...' : 'Save Changes'}
-          </button>
-        </div>
+        <FormActions onClose={onClose} isPending={isPending} submitLabel="Save Changes" />
       </form>
     </>
   );

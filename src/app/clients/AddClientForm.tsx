@@ -4,14 +4,15 @@ import { useActionState, useEffect } from 'react';
 import { createClient } from './actions';
 import { Regime } from '@/types/clients';
 import { NI_NUMBER_PATTERN } from '@/schemas/clients';
-
-const inputClass =
-  'w-full rounded-md border border-slate-200 px-3 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500';
-
-const labelClass = 'block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1';
+import { inputClass, labelClass } from '@/lib/form-styles';
+import FormError from '@/components/FormError';
+import FieldError from '@/components/FieldError';
+import FormActions from '@/components/FormActions';
 
 export default function AddClientForm({ onSuccess }: { onSuccess: () => void }) {
   const [state, formAction, isPending] = useActionState(createClient, null);
+  const fieldErrors = state?.success === false ? state.fieldErrors : undefined;
+  const formError = state?.success === false ? state.error : undefined;
 
   useEffect(() => {
     if (state?.success) onSuccess();
@@ -19,27 +20,19 @@ export default function AddClientForm({ onSuccess }: { onSuccess: () => void }) 
 
   return (
     <>
-      {state && !state.success && !state.fieldErrors && (
-        <div className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-          {state.error}
-        </div>
-      )}
+      <FormError error={!fieldErrors ? formError : undefined} />
       <form action={formAction}>
         <fieldset disabled={isPending} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>First Name</label>
               <input type="text" name="firstName" required className={inputClass} />
-              {state && !state.success && state.fieldErrors?.['firstName'] && (
-                <p className="mt-1 text-xs text-red-600">{state.fieldErrors['firstName']}</p>
-              )}
+              <FieldError fieldErrors={fieldErrors} name="firstName" />
             </div>
             <div>
               <label className={labelClass}>Last Name</label>
               <input type="text" name="lastName" required className={inputClass} />
-              {state && !state.success && state.fieldErrors?.['lastName'] && (
-                <p className="mt-1 text-xs text-red-600">{state.fieldErrors['lastName']}</p>
-              )}
+              <FieldError fieldErrors={fieldErrors} name="lastName" />
             </div>
           </div>
           <div>
@@ -53,23 +46,17 @@ export default function AddClientForm({ onSuccess }: { onSuccess: () => void }) 
               title="National Insurance number, e.g. AB 12 34 56 C"
               className={`${inputClass} font-mono`}
             />
-            {state && !state.success && state.fieldErrors?.['niNumber'] && (
-              <p className="mt-1 text-xs text-red-600">{state.fieldErrors['niNumber']}</p>
-            )}
+            <FieldError fieldErrors={fieldErrors} name="niNumber" />
           </div>
           <div>
             <label className={labelClass}>Email</label>
             <input type="email" name="email" className={inputClass} />
-            {state && !state.success && state.fieldErrors?.['email'] && (
-              <p className="mt-1 text-xs text-red-600">{state.fieldErrors['email']}</p>
-            )}
+            <FieldError fieldErrors={fieldErrors} name="email" />
           </div>
           <div>
             <label className={labelClass}>Phone</label>
             <input type="tel" name="phoneNumber" className={inputClass} />
-            {state && !state.success && state.fieldErrors?.['phoneNumber'] && (
-              <p className="mt-1 text-xs text-red-600">{state.fieldErrors['phoneNumber']}</p>
-            )}
+            <FieldError fieldErrors={fieldErrors} name="phoneNumber" />
           </div>
           <div>
             <label className={labelClass}>Regime</label>
@@ -83,28 +70,11 @@ export default function AddClientForm({ onSuccess }: { onSuccess: () => void }) 
                 MTD
               </label>
             </div>
-            {state && !state.success && state.fieldErrors?.['regime'] && (
-              <p className="mt-1 text-xs text-red-600">{state.fieldErrors['regime']}</p>
-            )}
+            <FieldError fieldErrors={fieldErrors} name="regime" />
           </div>
         </fieldset>
 
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onSuccess}
-            className="text-sm text-slate-500 hover:text-slate-800"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {isPending ? 'Saving...' : 'Add Client'}
-          </button>
-        </div>
+        <FormActions onClose={onSuccess} isPending={isPending} submitLabel="Add Client" />
       </form>
     </>
   );
