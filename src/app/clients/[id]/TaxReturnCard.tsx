@@ -2,13 +2,14 @@
 
 import ColorDot from '@/components/ColorDot';
 import StatusBadge from '@/components/StatusBadge';
-import { ChecklistItem, TaxReturn } from '@/types/clients';
+import { ChecklistItem, Status, TaxReturn } from '@/types/clients';
 import { useRef, useState, useTransition, useOptimistic } from 'react';
 import { formatDeadline, nextDeadline, regimeLabel } from '@/lib/tax-return';
 import { useDocumentUpload } from './useDocumentUpload';
-import { getDocumentDownloadUrl, toggleChecklistItem } from './actions';
+import { changeTaxReturnStatus, getDocumentDownloadUrl, toggleChecklistItem } from './actions';
 import { ALLOWED_TYPES } from '@/lib/documents';
 import { Document } from '@/types/documents';
+import { taxReturnStatusDisplay } from '@/lib/status';
 
 function ChecklistRow({ clientId, item }: { clientId: string; item: ChecklistItem }) {
   const { upload, state } = useDocumentUpload();
@@ -84,6 +85,23 @@ interface TaxReturnCardProps {
 export default function TaxReturnCard({ clientId, taxReturn }: TaxReturnCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const deadlineDate = nextDeadline(taxReturn);
+  const [isEditing, setIsEditing] = useState(false);
+  const [optimisticStatus, setOptimisticStatus] = useOptimistic(taxReturn.status);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
+
+  function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    e.stopPropagation();
+    const newStatus = Object.values(Status).find((s) => s === e.target.value);
+    if (!newStatus) return;
+    setIsEditing(false);
+    startTransition(async () => {
+      setOptimisticStatus(newStatus);
+      setStatusError(null);
+      const res = await changeTaxReturnStatus(taxReturn.id, clientId, newStatus);
+      if (!res.success) setStatusError(res.error);
+    });
+  }
 
   return (
     <>
@@ -93,7 +111,32 @@ export default function TaxReturnCard({ clientId, taxReturn }: TaxReturnCardProp
       >
         <td className="py-3 pr-5">{deadlineDate ? formatDeadline(deadlineDate) : '—'}</td>
         <td className="py-3 pr-5">
-          <StatusBadge status={taxReturn.status} />
+          {isEditing ? (
+            <select
+              autoFocus
+              defaultValue={optimisticStatus}
+              onChange={handleStatusChange}
+              onBlur={() => setIsEditing(false)}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {Object.entries(taxReturnStatusDisplay).map(([value, { label }]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditing(true);
+              }}
+            >
+              <StatusBadge status={optimisticStatus} />
+            </button>
+          )}
+          {statusError && <span className="text-red-500 text-sm">{statusError}</span>}
         </td>
         <td className="py-3 pr-5">{taxReturn.taxYear}</td>
         <td className="py-3 pr-5">{regimeLabel(taxReturn)}</td>

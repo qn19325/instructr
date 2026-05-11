@@ -19,7 +19,7 @@ import {
   UpdateNotesInput,
   UpdateChecklistItem,
 } from '@/schemas/clients';
-import { CreateTaxReturnInput } from '@/schemas/taxReturn';
+import { CreateTaxReturnInput, UpdateTaxReturnStatusInput } from '@/schemas/taxReturn';
 
 type RawChecklistItem = InferSelectModel<typeof schema.checklistItem> & {
   document: InferSelectModel<typeof schema.document> | null;
@@ -299,5 +299,26 @@ export async function updateClientNotes(input: UpdateNotesInput): Promise<void> 
 
   if (result.length === 0) {
     throw new Error(`Client ${input.clientId} not found`);
+  }
+}
+
+export async function updateTaxReturnStatus(input: UpdateTaxReturnStatusInput): Promise<void> {
+  const practiceId = await getCurrentPracticeId();
+  const result = await db
+    .update(taxReturn)
+    .set({
+      status: input.status,
+    })
+    .where(
+      and(
+        eq(taxReturn.practiceId, practiceId),
+        eq(taxReturn.clientId, input.clientId),
+        eq(taxReturn.id, input.taxReturnId),
+      ),
+    )
+    .returning();
+
+  if (result.length === 0) {
+    throw new Error(`Tax Return ${input.taxReturnId} not found`);
   }
 }

@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getDocument } from '@/db/documents';
 import { completeUpload, prepareUpload } from '@/lib/document-lifecycle';
 import { getDownloadUrl } from '@/lib/r2';
-import { taxReturnInputSchema } from '@/schemas/taxReturn';
+import { taxReturnInputSchema, updateTaxReturnStatusSchema } from '@/schemas/taxReturn';
 import {
   insertTaxReturn,
   getClientById,
@@ -12,9 +12,11 @@ import {
   updateClient,
   updateClientNotes,
   toggleChecklistItemStatus,
+  updateTaxReturnStatus,
 } from '@/db/clients';
 import { ArkErrors } from 'arktype';
 import { updateChecklistItemSchema, updateInputSchema, updateNotesSchema } from '@/schemas/clients';
+import { Status } from '@/types/clients';
 
 export type ActionResult =
   | { success: true }
@@ -174,5 +176,33 @@ export async function toggleChecklistItem(
     console.error('toggleChecklistItem failed:', error);
 
     return { success: false, error: 'Failed to toggle checklist item status' };
+  }
+}
+
+export async function changeTaxReturnStatus(
+  taxReturnId: string,
+  clientId: string,
+  status: Status,
+): Promise<ActionResult> {
+  const input = {
+    clientId,
+    taxReturnId,
+    status,
+  };
+
+  const parsed = updateTaxReturnStatusSchema(input);
+  if (parsed instanceof ArkErrors) {
+    const fieldErrors = Object.fromEntries(parsed.map((err) => [err.path.join('.'), err.message]));
+    return { success: false, error: 'Validation failed', fieldErrors };
+  }
+
+  try {
+    await updateTaxReturnStatus(parsed);
+    revalidatePath(`/clients/${clientId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('changeTaxReturnStatus failed:', error);
+
+    return { success: false, error: 'Failed to update tax return status' };
   }
 }

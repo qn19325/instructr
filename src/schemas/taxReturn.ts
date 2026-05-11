@@ -1,5 +1,5 @@
 import { type } from 'arktype';
-import { Regime } from '@/types/clients';
+import { Regime, Status } from '@/types/clients';
 import { currentTaxYear } from '@/lib/tax-return';
 
 export const taxReturnInputSchema = type({
@@ -15,3 +15,10 @@ export const taxReturnInputSchema = type({
   regime: type.enumerated(...Object.values(Regime)),
 });
 export type CreateTaxReturnInput = typeof taxReturnInputSchema.infer;
+
+export const updateTaxReturnStatusSchema = type({
+  clientId: 'string >= 1',
+  taxReturnId: 'string >= 1',
+  status: type.enumerated(...Object.values(Status)),
+});
+export type UpdateTaxReturnStatusInput = typeof updateTaxReturnStatusSchema.infer;
