@@ -47,7 +47,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         </thead>
         <tbody>
           {client.taxReturns.map((taxReturn) => {
-            return <TaxReturnCard key={taxReturn.id} {...taxReturn} />;
+            return <TaxReturnCard key={taxReturn.id} clientId={client.id} taxReturn={taxReturn} />;
           })}
         </tbody>
       </table>

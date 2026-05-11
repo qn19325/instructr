@@ -1,4 +1,4 @@
-import { and, eq, type InferSelectModel } from 'drizzle-orm';
+import { and, eq, inArray, not, type InferSelectModel } from 'drizzle-orm';
 import type * as schema from './schema';
 import {
   type Client,
@@ -13,7 +13,12 @@ import { client, taxReturn, checklistItem, mtdSubmission } from './schema';
 import { getCurrentPracticeId } from '@/lib/auth';
 import { currentTaxYear, mtdSubmissionTypes } from '@/lib/tax-return';
 import { getDefaultChecklist } from '@/lib/checklistDefaults';
-import { CreateClientInput, UpdateClientInput } from '@/schemas/clients';
+import {
+  CreateClientInput,
+  UpdateClientInput,
+  UpdateNotesInput,
+  UpdateChecklistItem,
+} from '@/schemas/clients';
 import { CreateTaxReturnInput } from '@/schemas/taxReturn';
 
 type RawChecklistItem = InferSelectModel<typeof schema.checklistItem> & {
@@ -80,7 +85,7 @@ function mapClient(cli: RawClient): Client {
     lastName: cli.lastName,
     email: cli.email ?? undefined,
     phoneNumber: cli.phoneNumber ?? undefined,
-    taxReturns: cli.taxReturns.map((taxReturn) => mapTaxReturn(taxReturn)),
+    taxReturns: cli.taxReturns.map((rawTr) => mapTaxReturn(rawTr)),
     notes: cli.notes ?? undefined,
   };
 }
@@ -189,7 +194,7 @@ export async function insertClient(input: CreateClientInput): Promise<void> {
   });
 }
 
-export async function updateClient(clientId: string, input: UpdateClientInput): Promise<void> {
+export async function updateClient(input: UpdateClientInput): Promise<void> {
   const practiceId = await getCurrentPracticeId();
   const result = await db
     .update(client)
@@ -200,11 +205,11 @@ export async function updateClient(clientId: string, input: UpdateClientInput): 
       email: input.email,
       phoneNumber: input.phoneNumber,
     })
-    .where(and(eq(client.id, clientId), eq(client.practiceId, practiceId)))
+    .where(and(eq(client.id, input.clientId), eq(client.practiceId, practiceId)))
     .returning({ id: client.id });
 
   if (result.length === 0) {
-    throw new Error(`Client ${clientId} not found`);
+    throw new Error(`Client ${input.clientId} not found`);
   }
 }
 
@@ -255,17 +260,44 @@ export async function getChecklistItem(
   return item ? { id: item.id, practiceId } : undefined;
 }
 
-export async function updateClientNotes(clientId: string, notes: string): Promise<void> {
+export async function toggleChecklistItemStatus(input: UpdateChecklistItem): Promise<void> {
+  const practiceId = await getCurrentPracticeId();
+  const res = await db
+    .update(checklistItem)
+    .set({
+      done: not(checklistItem.done),
+    })
+    .where(
+      and(
+        eq(checklistItem.id, input.checklistItemId),
+        eq(checklistItem.practiceId, practiceId),
+        inArray(
+          checklistItem.taxReturnId,
+          db
+            .select({ id: taxReturn.id })
+            .from(taxReturn)
+            .where(eq(taxReturn.clientId, input.clientId)),
+        ),
+      ),
+    )
+    .returning();
+
+  if (!res.length) {
+    throw new Error(`Checklist item ${input.checklistItemId} not found`);
+  }
+}
+
+export async function updateClientNotes(input: UpdateNotesInput): Promise<void> {
   const practiceId = await getCurrentPracticeId();
   const result = await db
     .update(client)
     .set({
-      notes: notes.trim() || null,
+      notes: input.notes ?? null,
     })
-    .where(and(eq(client.id, clientId), eq(client.practiceId, practiceId)))
+    .where(and(eq(client.id, input.clientId), eq(client.practiceId, practiceId)))
     .returning({ id: client.id });
 
   if (result.length === 0) {
-    throw new Error(`Client ${clientId} not found`);
+    throw new Error(`Client ${input.clientId} not found`);
   }
 }

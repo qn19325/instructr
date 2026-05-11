@@ -11,9 +11,14 @@ import {
   taxReturnExists,
   updateClient,
   updateClientNotes,
+  toggleChecklistItemStatus,
 } from '@/db/clients';
 import { ArkErrors } from 'arktype';
-import { updateInputSchema, updateNotesSchema } from '@/schemas/clients';
+import { updateChecklistItemSchema, updateInputSchema, updateNotesSchema } from '@/schemas/clients';
+
+export type ActionResult =
+  | { success: true }
+  | { success: false; error: string; fieldErrors?: Record<string, string> };
 
 export async function getUploadUrl(checklistItemId: string, mimeType: string, size: number) {
   return await prepareUpload(checklistItemId, { mimeType, size });
@@ -45,14 +50,10 @@ export async function getDocumentDownloadUrl(documentId: string): Promise<string
   return getDownloadUrl(document.r2Key);
 }
 
-export type CreateTaxReturnResult =
-  | { success: true }
-  | { success: false; error: string; fieldErrors?: Record<string, string> };
-
 export async function createTaxReturn(
-  _prevState: CreateTaxReturnResult | null,
+  _prevState: ActionResult | null,
   formData: FormData,
-): Promise<CreateTaxReturnResult> {
+): Promise<ActionResult> {
   const input = {
     clientId: formData.get('clientId'),
     taxYear: formData.get('taxYear'),
@@ -86,14 +87,10 @@ export async function createTaxReturn(
   }
 }
 
-export type UpdateClientResult =
-  | { success: true }
-  | { success: false; error: string; fieldErrors?: Record<string, string> };
-
 export async function editClient(
-  _prevState: UpdateClientResult | null,
+  _prevState: ActionResult | null,
   formData: FormData,
-): Promise<UpdateClientResult> {
+): Promise<ActionResult> {
   const input = {
     clientId: formData.get('clientId'),
     firstName: formData.get('firstName'),
@@ -115,7 +112,7 @@ export async function editClient(
   }
 
   try {
-    await updateClient(client.id, parsed);
+    await updateClient(parsed);
     revalidatePath(`/clients/${parsed.clientId}`);
     return { success: true };
   } catch (error) {
@@ -131,7 +128,7 @@ export async function editClient(
 export async function saveNotes(
   clientId: string,
   notes: string | undefined,
-): Promise<UpdateClientResult> {
+): Promise<ActionResult> {
   const input = {
     clientId,
     notes,
@@ -144,12 +141,38 @@ export async function saveNotes(
   }
 
   try {
-    await updateClientNotes(parsed.clientId, parsed.notes ?? '');
+    await updateClientNotes(parsed);
     revalidatePath(`/clients/${clientId}`);
     return { success: true };
   } catch (error) {
     console.error('saveNotes failed:', error);
 
     return { success: false, error: 'Failed to save notes' };
+  }
+}
+
+export async function toggleChecklistItem(
+  checklistItemId: string,
+  clientId: string,
+): Promise<ActionResult> {
+  const input = {
+    clientId,
+    checklistItemId,
+  };
+
+  const parsed = updateChecklistItemSchema(input);
+  if (parsed instanceof ArkErrors) {
+    const fieldErrors = Object.fromEntries(parsed.map((err) => [err.path.join('.'), err.message]));
+    return { success: false, error: 'Validation failed', fieldErrors };
+  }
+
+  try {
+    await toggleChecklistItemStatus(parsed);
+    revalidatePath(`/clients/${clientId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('toggleChecklistItem failed:', error);
+
+    return { success: false, error: 'Failed to toggle checklist item status' };
   }
 }
