@@ -55,6 +55,7 @@ export const client = pgTable(
     niNumber: text().notNull(),
     email: text(),
     phoneNumber: text(),
+    notes: text(),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()

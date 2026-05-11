@@ -3,12 +3,13 @@ import TaxReturnCard from './TaxReturnCard';
 import { getClientById } from '@/db/clients';
 import AddTaxReturnModal from './AddTaxReturnModal';
 import EditClientModal from './EditClientModal';
+import NotesSection from './NotesSection';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
-  const clientRecord = await getClientById(id);
+  const client = await getClientById(id);
 
-  if (!clientRecord) {
+  if (!client) {
     notFound();
   }
 
@@ -16,25 +17,24 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     <>
       <div className="mb-6 flex items-center justify-between">
         <div className="text-2xl font-semibold text-slate-900">
-          {clientRecord.firstName} {clientRecord.lastName}
+          {client.firstName} {client.lastName}
         </div>
         <div className="flex items-center gap-4 text-sm text-slate-400">
-          {clientRecord.phoneNumber && <span>{clientRecord.phoneNumber}</span>}
-          {clientRecord.email && <span>{clientRecord.email}</span>}
-          <span className="font-mono">{clientRecord.niNumber}</span>
+          {client.phoneNumber && <span>{client.phoneNumber}</span>}
+          {client.email && <span>{client.email}</span>}
+          <span className="font-mono">{client.niNumber}</span>
         </div>
-        <EditClientModal
-          id={clientRecord.id}
-          niNumber={clientRecord.niNumber}
-          firstName={clientRecord.firstName}
-          lastName={clientRecord.lastName}
-          email={clientRecord.email}
-          phoneNumber={clientRecord.phoneNumber}
-        />
-        <AddTaxReturnModal
-          clientId={clientRecord.id}
-          existingTaxReturns={clientRecord.taxReturns}
-        />
+        <div className="flex items-center justify-between gap-2">
+          <EditClientModal
+            id={client.id}
+            niNumber={client.niNumber}
+            firstName={client.firstName}
+            lastName={client.lastName}
+            email={client.email}
+            phoneNumber={client.phoneNumber}
+          />
+          <AddTaxReturnModal clientId={client.id} existingTaxReturns={client.taxReturns} />
+        </div>
       </div>
       <table className="w-full">
         <thead>
@@ -46,17 +46,12 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           </tr>
         </thead>
         <tbody>
-          {clientRecord.taxReturns.map((taxReturn) => {
+          {client.taxReturns.map((taxReturn) => {
             return <TaxReturnCard key={taxReturn.id} {...taxReturn} />;
           })}
         </tbody>
       </table>
-      <div className="mt-8">
-        <div className="border-b border-slate-200 pb-2 text-xs font-medium text-slate-400 uppercase">
-          Notes
-        </div>
-        <p className="mt-3 text-sm text-slate-400">No notes yet.</p>
-      </div>
+      <NotesSection clientId={client.id} currentNotes={client.notes} />
     </>
   );
 }

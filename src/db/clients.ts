@@ -81,6 +81,7 @@ function mapClient(cli: RawClient): Client {
     email: cli.email ?? undefined,
     phoneNumber: cli.phoneNumber ?? undefined,
     taxReturns: cli.taxReturns.map((taxReturn) => mapTaxReturn(taxReturn)),
+    notes: cli.notes ?? undefined,
   };
 }
 
@@ -190,7 +191,7 @@ export async function insertClient(input: CreateClientInput): Promise<void> {
 
 export async function updateClient(clientId: string, input: UpdateClientInput): Promise<void> {
   const practiceId = await getCurrentPracticeId();
-  await db
+  const result = await db
     .update(client)
     .set({
       firstName: input.firstName,
@@ -199,7 +200,12 @@ export async function updateClient(clientId: string, input: UpdateClientInput): 
       email: input.email,
       phoneNumber: input.phoneNumber,
     })
-    .where(and(eq(client.id, clientId), eq(client.practiceId, practiceId)));
+    .where(and(eq(client.id, clientId), eq(client.practiceId, practiceId)))
+    .returning({ id: client.id });
+
+  if (result.length === 0) {
+    throw new Error(`Client ${clientId} not found`);
+  }
 }
 
 export async function insertTaxReturn(input: CreateTaxReturnInput): Promise<void> {
@@ -247,4 +253,19 @@ export async function getChecklistItem(
     where: (table, { eq, and }) => and(eq(table.id, id), eq(table.practiceId, practiceId)),
   });
   return item ? { id: item.id, practiceId } : undefined;
+}
+
+export async function updateClientNotes(clientId: string, notes: string): Promise<void> {
+  const practiceId = await getCurrentPracticeId();
+  const result = await db
+    .update(client)
+    .set({
+      notes: notes.trim() || null,
+    })
+    .where(and(eq(client.id, clientId), eq(client.practiceId, practiceId)))
+    .returning({ id: client.id });
+
+  if (result.length === 0) {
+    throw new Error(`Client ${clientId} not found`);
+  }
 }

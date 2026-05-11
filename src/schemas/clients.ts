@@ -36,3 +36,11 @@ export const updateInputSchema = type({
     .to('string >= 1 | undefined'),
 });
 export type UpdateClientInput = typeof updateInputSchema.infer;
+
+export const updateNotesSchema = type({
+  clientId: 'string >= 1',
+  notes: type('string')
+    .pipe((s) => s || undefined)
+    .to('string >= 1 | undefined'),
+});
+export type UpdateNotesInput = typeof updateNotesSchema.infer;

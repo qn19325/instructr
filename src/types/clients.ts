@@ -40,6 +40,7 @@ export interface Client {
   email?: string;
   phoneNumber?: string;
   taxReturns: TaxReturn[];
+  notes?: string;
 }
 
 export interface TaxReturnBase {

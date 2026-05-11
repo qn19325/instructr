@@ -5,9 +5,15 @@ import { getDocument } from '@/db/documents';
 import { completeUpload, prepareUpload } from '@/lib/document-lifecycle';
 import { getDownloadUrl } from '@/lib/r2';
 import { taxReturnInputSchema } from '@/schemas/taxReturn';
-import { insertTaxReturn, getClientById, taxReturnExists, updateClient } from '@/db/clients';
+import {
+  insertTaxReturn,
+  getClientById,
+  taxReturnExists,
+  updateClient,
+  updateClientNotes,
+} from '@/db/clients';
 import { ArkErrors } from 'arktype';
-import { updateInputSchema } from '@/schemas/clients';
+import { updateInputSchema, updateNotesSchema } from '@/schemas/clients';
 
 export async function getUploadUrl(checklistItemId: string, mimeType: string, size: number) {
   return await prepareUpload(checklistItemId, { mimeType, size });
@@ -119,5 +125,31 @@ export async function editClient(
     console.error('editClient failed:', error);
 
     return { success: false, error: 'Failed to edit client' };
+  }
+}
+
+export async function saveNotes(
+  clientId: string,
+  notes: string | undefined,
+): Promise<UpdateClientResult> {
+  const input = {
+    clientId,
+    notes,
+  };
+
+  const parsed = updateNotesSchema(input);
+  if (parsed instanceof ArkErrors) {
+    const fieldErrors = Object.fromEntries(parsed.map((err) => [err.path.join('.'), err.message]));
+    return { success: false, error: 'Validation failed', fieldErrors };
+  }
+
+  try {
+    await updateClientNotes(parsed.clientId, parsed.notes ?? '');
+    revalidatePath(`/clients/${clientId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('saveNotes failed:', error);
+
+    return { success: false, error: 'Failed to save notes' };
   }
 }
