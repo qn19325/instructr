@@ -4,8 +4,6 @@ import { revalidatePath } from 'next/cache';
 import { ArkErrors } from 'arktype';
 import { getCurrentPracticeId } from '@/infra/auth';
 import * as clientService from '@/service/clients';
-import * as taxReturnService from '@/service/tax-returns';
-import * as checklistService from '@/service/checklist';
 import * as documentService from '@/service/documents';
 import { taxReturnInputSchema, updateTaxReturnStatusSchema } from '@/schemas/tax-return';
 import { updateChecklistItemSchema, updateInputSchema, updateNotesSchema } from '@/schemas/clients';
@@ -34,6 +32,7 @@ export async function recordUpload(
       size,
       originalFileName,
     });
+    await clientService.markItemReceived(practiceId, checklistItemId);
     revalidatePath('/clients', 'layout');
     return { success: true };
   } catch {
@@ -69,7 +68,7 @@ export async function createTaxReturn(
     return { success: false, error: 'Client not found' };
   }
 
-  const duplicate = await taxReturnService.taxReturnExists(
+  const duplicate = await clientService.taxReturnExists(
     practiceId,
     parsed.clientId,
     parsed.taxYear,
@@ -80,7 +79,7 @@ export async function createTaxReturn(
   }
 
   try {
-    await taxReturnService.insertTaxReturn(practiceId, parsed);
+    await clientService.insertTaxReturn(practiceId, parsed);
     revalidatePath(`/clients/${parsed.clientId}`);
     return { success: true };
   } catch (error) {
@@ -170,13 +169,9 @@ export async function toggleChecklistItem(
   const practiceId = await getCurrentPracticeId();
   try {
     if (done) {
-      await checklistService.markItemOutstanding(
-        practiceId,
-        parsed.checklistItemId,
-        parsed.clientId,
-      );
+      await clientService.markItemOutstanding(practiceId, parsed.checklistItemId, parsed.clientId);
     } else {
-      await checklistService.markItemReceived(practiceId, parsed.checklistItemId, parsed.clientId);
+      await clientService.markItemReceived(practiceId, parsed.checklistItemId, parsed.clientId);
     }
     revalidatePath(`/clients/${clientId}`);
     return { success: true };
@@ -202,7 +197,7 @@ export async function changeTaxReturnStatus(
 
   const practiceId = await getCurrentPracticeId();
   try {
-    await taxReturnService.changeTaxReturnStatus(practiceId, parsed);
+    await clientService.changeTaxReturnStatus(practiceId, parsed);
     revalidatePath(`/clients/${clientId}`);
     return { success: true };
   } catch (error) {

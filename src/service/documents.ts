@@ -1,16 +1,10 @@
 import { randomUUID } from 'crypto';
-import { db } from '@/infra/db';
 import { deleteObject, getDownloadUrl, getUploadUrl } from '@/infra/r2';
 import * as docRepo from '@/repo/documents';
-import * as checklistRepo from '@/repo/checklist-items';
+import * as clientService from '@/service/clients';
+import { withTransaction } from '@/repo';
 import { validateDocument } from '@/logic/document-validation';
 import type { DocumentMetaData, FileMetaData } from '@/types/documents';
-
-async function loadOwnedItem(practiceId: string, checklistItemId: string) {
-  const item = await checklistRepo.getChecklistItemOwnership(practiceId, checklistItemId);
-  if (!item) throw new Error('Unauthorised');
-  return item;
-}
 
 // Abandoned presigned URLs (browser crash after prepareUpload, before completeUpload)
 // leave orphaned R2 objects. Accepted for Phase 1 — single user, cosmetic cost.
@@ -19,7 +13,7 @@ export async function prepareUpload(
   checklistItemId: string,
   fileMetaData: FileMetaData,
 ): Promise<{ uploadUrl: string; documentKey: string }> {
-  await loadOwnedItem(practiceId, checklistItemId);
+  await clientService.assertChecklistItemOwned(practiceId, checklistItemId);
 
   const isDocumentValid = validateDocument(fileMetaData);
   if (!isDocumentValid.valid) {
@@ -37,9 +31,9 @@ export async function completeUpload(
   documentKey: string,
   fileMetaData: DocumentMetaData,
 ): Promise<void> {
-  const item = await loadOwnedItem(practiceId, checklistItemId);
+  await clientService.assertChecklistItemOwned(practiceId, checklistItemId);
 
-  const { oldR2Key } = await db.transaction(async (tx) => {
+  const { oldR2Key } = await withTransaction(async (tx) => {
     const existing = await docRepo.getDocumentByChecklistItem(practiceId, checklistItemId, tx);
     if (existing) {
       await docRepo.deleteDocument(practiceId, existing.id, tx);
@@ -50,7 +44,6 @@ export async function completeUpload(
       { checklistItemId, r2Key: documentKey, meta: fileMetaData },
       tx,
     );
-    await checklistRepo.updateChecklistItemDone(practiceId, item.id, true, tx);
     return { oldR2Key: existing?.r2Key ?? null };
   });
 
@@ -65,12 +58,12 @@ export async function completeUpload(
 }
 
 export async function removeDocument(practiceId: string, checklistItemId: string): Promise<void> {
-  await loadOwnedItem(practiceId, checklistItemId);
+  await clientService.assertChecklistItemOwned(practiceId, checklistItemId);
 
   const existing = await docRepo.getDocumentByChecklistItem(practiceId, checklistItemId);
   if (!existing) throw new Error('No document found');
 
-  await db.transaction(async (tx) => {
+  await withTransaction(async (tx) => {
     await docRepo.deleteDocument(practiceId, existing.id, tx);
     await docRepo.enqueuePendingDelete(practiceId, existing.r2Key, tx);
   });

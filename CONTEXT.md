@@ -81,9 +81,9 @@ _Avoid_: submission (use filing for the HMRC act; submission means an MTD quarte
 
 ## Flagged ambiguities
 
-- **"Filing" vs "submission"**: resolved — *filing* = the HMRC submission act (done in TaxCalc, out of scope Phase 1); *submission* alone is banned; *MTD submission* = a quarterly update or Final Declaration row in the `mtd_submission` table.
+- **"Filing" vs "submission"**: resolved — _filing_ = the HMRC submission act (done in TaxCalc, out of scope Phase 1); _submission_ alone is banned; _MTD submission_ = a quarterly update or Final Declaration row in the `mtd_submission` table.
 - **"Client" as user**: resolved — a client is a CRM record, not a system user. In Phase 1, only Lara (the accountant) is a user. "User" refers to Lara's Clerk auth identity, never to a client.
 - **"Deadline" as stored vs computed**: resolved — deadlines are computed from `tax_year` + `regime` by `computeDeadline()` in `src/lib/deadlines.ts`; only HMRC-granted extensions are stored as `deadline_override`.
-- **"Status" (which one)**: resolved — *tax return status* (the 5-value workflow enum on `tax_return`) vs *MTD submission status* (the 3-value `pending / submitted / overdue` enum on `mtd_submission`). Always qualify which status you mean.
+- **"Status" (which one)**: resolved — _tax return status_ (the 5-value workflow enum on `tax_return`) vs _MTD submission status_ (the 3-value `pending / submitted / overdue` enum on `mtd_submission`). Always qualify which status you mean.
 - **"Regime" on client vs tax return**: resolved — regime is stored per tax return, not per client. A client moving from SA100 to MTD gets a new tax return row with `regime = mtd`; the client row is unchanged.
 - **Checklist item types and vocabulary**: provisional — the `document_type` enum values were derived from research, not from Lara's direct input. Lara has not yet validated what she calls these things or confirmed the canonical checklist contents. Treat as working assumptions until validated.

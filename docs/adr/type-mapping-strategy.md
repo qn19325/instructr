@@ -16,7 +16,9 @@ Deferred to Phase B. In Phase A, a single set of types in `src/types/` represent
 ## Options Considered
 
 ### Option A — Two type files (deferred to Phase B)
+
 Maintain two separate type/interface files:
+
 - `api.types.ts` (or `dto.ts`) — mirrors the exact shape returned by the backend (Drizzle query results, HMRC API payloads)
 - `models.ts` — mapped internal models used by the UI (computed fields, friendlier types, renamed fields)
 
@@ -25,6 +27,7 @@ A mapping/transform layer converts API types → UI models at the data-fetch bou
 **Why deferred:** In Phase A there is no real backend — all data is hand-authored mock objects, so the "API type" and "UI model" are identical. Introducing the split now adds infrastructure for a boundary that doesn't yet exist.
 
 ### Option B — Single type file with Omit patches (current Phase A approach)
+
 Use a single `clients.ts` type file. Where a component needs a different shape (e.g. `deadline: string` instead of `Date`), use `Omit<BaseType, 'field'> & { field: NewType }` at the component boundary.
 
 **Weakness:** `Omit` patches are fragile — renaming a field in the base type does not break the `Omit` call at compile time. Ugly at the call site. Does not scale past a few conversions.

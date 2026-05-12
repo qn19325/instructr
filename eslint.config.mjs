@@ -9,7 +9,7 @@ const eslintConfig = defineConfig([
   {
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      "@typescript-eslint/no-inferrable-types": "error",
+      '@typescript-eslint/no-inferrable-types': 'error',
     },
   },
   // Must be last — disables any ESLint rules that conflict with Prettier.

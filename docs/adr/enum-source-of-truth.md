@@ -27,9 +27,9 @@ Phase B's [[phase-b-code-review]] flagged that `Status`, `SubmissionType`, and `
 // types/clients.ts
 import { statusEnum } from '@/db/schema';
 export type Status = (typeof statusEnum.enumValues)[number];
-export const Status = Object.fromEntries(
-  statusEnum.enumValues.map((v) => [v, v]),
-) as { [K in Status]: K };
+export const Status = Object.fromEntries(statusEnum.enumValues.map((v) => [v, v])) as {
+  [K in Status]: K;
+};
 ```
 
 **Pros:** DB is authoritative; pgEnum is the literal values list.

@@ -16,7 +16,6 @@ export function formatDeadline(d: Date): string {
   return d.toLocaleDateString('en-GB', { timeZone: 'UTC' });
 }
 
-
 export function mostRecentReturn(taxReturns: TaxReturn[]): TaxReturn | undefined {
   if (!taxReturns.length) return undefined;
   return taxReturns.reduce((prev, cur) => {
