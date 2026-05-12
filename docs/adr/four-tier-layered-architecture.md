@@ -52,6 +52,12 @@ src/
 
 Import direction is one-way: `app → service → repo → infra`. Logic is leaf — anything may import it.
 
+### Known tension: cross-service atomicity
+
+When one service needs to compose another service's work within a single transaction (e.g. `clients.service` creates a client + tax return atomically), the orchestrating service opens the transaction via `withTransaction` and passes `tx` into a sibling service function. This requires the sibling to export a `_withTx`-style function that accepts `Tx` — a repo-layer type crossing the service boundary.
+
+This is an accepted trade-off. The alternatives (merge into one service, call cross-feature repos directly) each violate a different rule. The pattern is: orchestrating service owns the transaction; sibling service exposes a transaction-scoped variant (`insertTaxReturnWithDeps(tx, ...)`) alongside its normal public API (`insertTaxReturn(...)`). The `Tx` parameter signals "internal coordination, not a normal service call."
+
 ## Context
 
 Phase D's [[architecture-review-2026-05-11]] surfaced repeated reviewer complaints that `src/lib/checklist.ts` "broke a seam" by talking to Drizzle directly, while `src/db/clients.ts` exists with similar concerns. The 2026-05-12 follow-up noted that `lib/` doing raw Drizzle was already the established pattern (via `document-lifecycle.ts`) and deferred the seam question.

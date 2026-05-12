@@ -3,8 +3,8 @@ import { client, practice, taxReturn, checklistItem, mtdSubmission } from './sch
 import { eq } from 'drizzle-orm';
 import { Regime, Status, MtdSubmissionStatus } from '@/types/clients';
 import { currentTaxYear } from '@/logic/tax-year';
-import { mtdSubmissionTypes } from '@/logic/tax-return';
 import { getDefaultChecklist } from '@/logic/checklist-defaults';
+import { mtdSubmissionTypes } from '@/logic/deadlines';
 
 const SEED_PRACTICE_NAME = 'Warwick & Co';
 

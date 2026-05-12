@@ -1,10 +1,10 @@
-import { db } from '@/infra/db';
 import * as clientRepo from '@/repo/clients';
 import * as taxReturnService from '@/service/tax-returns';
 import { mapClient } from '@/logic/clients';
 import { currentTaxYear } from '@/logic/tax-year';
 import type { Client } from '@/types/clients';
 import type { CreateClientInput, UpdateClientInput, UpdateNotesInput } from '@/schemas/clients';
+import { withTransaction } from '@/repo';
 
 export async function getClients(practiceId: string): Promise<Client[]> {
   const rows = await clientRepo.getClients(practiceId);
@@ -17,7 +17,7 @@ export async function getClientById(practiceId: string, id: string): Promise<Cli
 }
 
 export async function insertClient(practiceId: string, input: CreateClientInput): Promise<void> {
-  await db.transaction(async (tx) => {
+  await withTransaction(async (tx) => {
     const newClient = await clientRepo.insertClient(practiceId, input, tx);
     await taxReturnService.insertTaxReturnWithDeps(tx, practiceId, {
       clientId: newClient.id,

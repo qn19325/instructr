@@ -2,19 +2,24 @@
 
 ## Current State
 
-**Active phase: E — AI Preparation Layer**
+**Active phase: Pre-deploy — CV production deploy to instructr.uk**
 **Phase D complete. All 5 workflow features live — add tax return, edit client, notes, checklist toggle, status change.**
 **Phase E prerequisite: at least one real return cycle with Lara before starting AI work. See `wiki/topics/application-build-phases.md`.**
-**Infrastructure pre-provisioned for Phase 2:** domain `instructr.uk` (Cloudflare), Neon DB (London), Vercel project "instructr" — no active deployment. Deploy bundle lands at Phase 2 start with Clerk.
+**Deploy decision:** CV deploy brought forward from Phase 2 start. Single Vercel deployment with two route groups: Clerk-protected real app + unauthenticated read-only demo. See `wiki/decisions/cv-deploy-plan.md`.
 
-### Pre-Phase-E queue
+### Pre-deploy queue (in order)
 
-Layered refactor first (foundation for tests), then UI alignment, then abstraction, then polish.
+1. ✅ **Layered refactor** — four-tier architecture complete (commit 91907f4).
+2. **UI mockup alignment** — align UI to design mockups before public visibility.
+3. **Modal + Form abstraction** (`TriggerModal`, `useActionForm`, drop `<Modal>` `isOpen`, shared `<ClientFields>`, normalise `onClose`/`formError`) — arch review §3 + codebase review. Code is public on GitHub; abstraction matters for CV.
+4. **Secrets audit** — confirm no real client data, NI numbers, or secrets in committed codebase before deploy.
+5. **Deploy** — Clerk setup → Neon read-only role for demo → Vercel env vars → `db:push` → demo seed data.
 
-1. **Layered refactor** — migrate to `logic/` + `repo/` + `service/` + `infra/` per `docs/adr/four-tier-layered-architecture.md`. Subsumes the previous "extract `lib/checklist.ts`" and "extract `lib/tax-year.ts`" items. Order: `infra/` move → `logic/` move (incl. new `tax-year.ts`) → repo split → service split (incl. checklist as first-class operations from arch review §1) → action layer resolves `practiceId`. Done when each tier is independently testable per the ADR's acceptance criteria.
-2. UI mockup alignment.
-3. Modal + Form abstraction (`TriggerModal`, `useActionForm`, drop `<Modal>` `isOpen`, shared `<ClientFields>`, normalise `onClose`/`formError`) — arch review §3 + codebase review.
-4. Codebase-review polish — remaining items in `wiki/sessions/2026-05-11-codebase-review-react-simplicity.md`.
+### Post-deploy queue
+
+- Codebase-review polish — remaining items in `wiki/sessions/2026-05-11-codebase-review-react-simplicity.md`.
+- Test suite — high CV value; add after first deploy.
+- Phase E (AI preparation layer) — after deploy + at least one real return cycle with Lara.
 
 Note: `mostRecentReturn` bug (was item 1) — fixed in commit 10a221c.
 

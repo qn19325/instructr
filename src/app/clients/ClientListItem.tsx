@@ -5,9 +5,9 @@ import {
   firstUnfiledReturn,
   formatDeadline,
   mostRecentReturn,
-  nextDeadline,
   regimeLabel,
 } from '@/logic/tax-return';
+import { nextDeadline } from '@/logic/deadlines';
 
 interface ClientListItemProps {
   client: Client;

@@ -2,10 +2,10 @@ import * as taxReturnRepo from '@/repo/tax-returns';
 import * as checklistRepo from '@/repo/checklist-items';
 import * as mtdRepo from '@/repo/mtd-submissions';
 import { getDefaultChecklist } from '@/logic/checklist-defaults';
-import { mtdSubmissionTypes } from '@/logic/tax-return';
 import { Regime } from '@/types/clients';
 import type { CreateTaxReturnInput, UpdateTaxReturnStatusInput } from '@/schemas/tax-return';
 import { Tx, withTransaction } from '@/repo';
+import { mtdSubmissionTypes } from '@/logic/deadlines';
 
 export async function insertTaxReturnWithDeps(
   tx: Tx,

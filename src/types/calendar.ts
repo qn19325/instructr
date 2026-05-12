@@ -3,6 +3,7 @@ import { Regime, Status, MtdSubmissionStatus, SubmissionType } from './clients';
 interface DeadlineEntryBase {
   name: string;
   id: string;
+  clientId: string;
   deadline: Date;
   taxYear: number;
 }

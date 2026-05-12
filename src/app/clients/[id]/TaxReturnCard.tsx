@@ -4,12 +4,13 @@ import ColorDot from '@/components/ColorDot';
 import StatusBadge from '@/components/StatusBadge';
 import { ChecklistItem, Status, TaxReturn } from '@/types/clients';
 import { useRef, useState, useTransition, useOptimistic } from 'react';
-import { formatDeadline, nextDeadline, regimeLabel } from '@/logic/tax-return';
+import { formatDeadline, regimeLabel } from '@/logic/tax-return';
 import { useDocumentUpload } from './useDocumentUpload';
 import { changeTaxReturnStatus, getDocumentDownloadUrl, toggleChecklistItem } from './actions';
 import { ALLOWED_TYPES } from '@/logic/document-validation';
 import { Document } from '@/types/documents';
-import { taxReturnStatusDisplay } from '@/logic/status';
+import { taxReturnStatusDisplay } from '@/components/statusDisplay';
+import { nextDeadline } from '@/logic/deadlines';
 
 function ChecklistRow({ clientId, item }: { clientId: string; item: ChecklistItem }) {
   const { upload, state } = useDocumentUpload();
