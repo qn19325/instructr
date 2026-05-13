@@ -37,10 +37,10 @@ export interface Client {
   niNumber: string; // e.g. AB 12 34 56 C
   firstName: string;
   lastName: string;
-  email?: string;
-  phoneNumber?: string;
+  email: string | null;
+  phoneNumber: string | null;
   taxReturns: TaxReturn[];
-  notes?: string;
+  notes: string | null;
 }
 
 export interface TaxReturnBase {

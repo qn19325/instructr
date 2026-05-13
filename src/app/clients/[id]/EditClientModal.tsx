@@ -8,8 +8,8 @@ interface EditClientModalProps {
   niNumber: string;
   firstName: string;
   lastName: string;
-  email?: string;
-  phoneNumber?: string;
+  email: string | null;
+  phoneNumber: string | null;
 }
 
 export default function EditClientModal(props: EditClientModalProps) {
@@ -31,8 +31,8 @@ export default function EditClientModal(props: EditClientModalProps) {
           firstName={props.firstName}
           lastName={props.lastName}
           niNumber={props.niNumber}
-          email={props.email ?? ''}
-          phoneNumber={props.phoneNumber ?? ''}
+          email={props.email}
+          phoneNumber={props.phoneNumber}
           onClose={close}
         />
       )}

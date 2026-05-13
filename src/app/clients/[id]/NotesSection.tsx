@@ -11,7 +11,7 @@ type SavingState =
 
 interface NotesSectionProps {
   clientId: string;
-  currentNotes?: string;
+  currentNotes: string | null;
 }
 
 export default function NotesSection(props: NotesSectionProps) {

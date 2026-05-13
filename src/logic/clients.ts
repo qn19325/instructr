@@ -86,9 +86,9 @@ export function mapClient(row: ClientRow): Client {
     niNumber: row.niNumber,
     firstName: row.firstName,
     lastName: row.lastName,
-    email: row.email ?? undefined,
-    phoneNumber: row.phoneNumber ?? undefined,
+    email: row.email,
+    phoneNumber: row.phoneNumber,
     taxReturns: row.taxReturns.map(mapTaxReturn),
-    notes: row.notes ?? undefined,
+    notes: row.notes,
   };
 }
