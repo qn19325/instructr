@@ -1,7 +1,8 @@
 import { NI_NUMBER_PATTERN } from '@/schemas/clients';
 
-import FieldError from './FieldError';
 import { inputClass, labelClass } from '../config/formStyles';
+
+import FieldError from './FieldError';
 
 interface ClientFieldsProps {
   fieldErrors: Record<string, string> | undefined;

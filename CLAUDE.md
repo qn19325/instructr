@@ -13,7 +13,7 @@
 2. ✅ **UI mockup alignment** — align UI to design mockups before public visibility.
 3. ✅ **Modal + Form abstraction** — render-prop `Modal` (no `isOpen`), `useActionForm`, `ClientFields` shared, `onClose` normalised everywhere (commits 7ed3772, 8e8924c).
 4. ✅ **Secrets audit** — clean: no real client data, NI numbers, or hardcoded secrets in committed codebase (2026-05-14).
-5. **Deploy** — ✅ Clerk setup → ✅ Neon demo branch → ✅ `getCurrentDb()` + `db` param refactor → **middleware** → sign-in page → demo banner → Vercel env vars + domain alias → `db:push` → seed demo branch.
+5. **Deploy** — ✅ Clerk setup → ✅ Neon demo branch → ✅ `getCurrentDb()` + `db` param refactor → ✅ **proxy** (`src/proxy.ts`, Next.js 16 renamed `middleware.ts` → `proxy.ts`) → sign-in page → demo banner → Vercel env vars + domain alias → `db:push` → seed demo branch.
 
 ### Post-deploy queue
 

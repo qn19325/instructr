@@ -1,4 +1,4 @@
-import { cols } from '@/app/clients/clientsGrid';
+import { cols } from '@/app/(app)/clients/clientsGrid';
 import { getCurrentPracticeId } from '@/infra/auth';
 import { getCurrentDb } from '@/infra/db';
 import { numberOfClientsWithUnfiled } from '@/logic/tax-return';

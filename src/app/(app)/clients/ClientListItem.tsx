@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { cols } from '@/app/clients/clientsGrid';
+import { cols } from '@/app/(app)/clients/clientsGrid';
 import Chevron from '@/components/Chevron';
 import RegimeBadge from '@/components/RegimeBadge';
 import StatusBadge from '@/components/StatusBadge';
