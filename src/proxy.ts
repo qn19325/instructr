@@ -10,9 +10,9 @@ export default clerkMiddleware(async (auth, request) => {
   const isDemo = host === 'demo.instructr.uk';
 
   if (isDemo) {
-    const res = NextResponse.next();
-    res.headers.set(DEMO_HEADER, 'true');
-    return res;
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set(DEMO_HEADER, 'true');
+    return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   if (!isPublicRoute(request)) await auth.protect();
