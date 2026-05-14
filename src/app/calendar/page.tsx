@@ -4,13 +4,15 @@ import Chevron from '@/components/Chevron';
 import RegimeBadge from '@/components/RegimeBadge';
 import StatusBadge from '@/components/StatusBadge';
 import { getCurrentPracticeId } from '@/infra/auth';
+import { getCurrentDb } from '@/infra/db';
 import { formatDayOfWeek, formatDayNumber } from '@/logic/calendar';
 import { deadlineSubLine, getDeadlineEntries, groupDeadlinesByMonth } from '@/logic/deadlines';
 import { getClients } from '@/service/clients';
 
 export default async function Page() {
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
-  const clients = await getClients(practiceId);
+  const clients = await getClients(db, practiceId);
   const entries = getDeadlineEntries(clients);
 
   const grouped = groupDeadlinesByMonth(entries);

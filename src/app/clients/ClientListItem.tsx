@@ -12,7 +12,7 @@ import {
   mostRecentReturn,
 } from '@/logic/tax-return';
 import { Status } from '@/types/clients';
-import type { Client} from '@/types/clients';
+import type { Client } from '@/types/clients';
 
 interface ClientListItemProps {
   client: Client;

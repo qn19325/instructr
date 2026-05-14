@@ -5,15 +5,15 @@
 **Active phase: Pre-deploy — CV production deploy to instructr.uk**
 **Phase D complete. All 5 workflow features live — add tax return, edit client, notes, checklist toggle, status change.**
 **Phase E prerequisite: at least one real return cycle with Lara before starting AI work. See `wiki/topics/application-build-phases.md`.**
-**Deploy decision:** CV deploy brought forward from Phase 2 start. Single Vercel deployment with two route groups: Clerk-protected real app + unauthenticated read-only demo. See `wiki/decisions/cv-deploy-plan.md`.
+**Deploy decision:** CV deploy brought forward from Phase 2 start. Single Vercel deployment, two domains (`instructr.uk` / `demo.instructr.uk`), host-header detection in middleware. Demo is fully interactive — writes hit a separate Neon branch, data resets manually. See `wiki/decisions/auth-and-demo-architecture.md`.
 
 ### Pre-deploy queue (in order)
 
 1. ✅ **Layered refactor** — four-tier architecture complete (commit 91907f4).
 2. ✅ **UI mockup alignment** — align UI to design mockups before public visibility.
-3. **Modal + Form abstraction** (`TriggerModal`, `useActionForm`, drop `<Modal>` `isOpen`, shared `<ClientFields>`, normalise `onClose`/`formError`) — arch review §3 + codebase review. Code is public on GitHub; abstraction matters for CV.
-4. **Secrets audit** — confirm no real client data, NI numbers, or secrets in committed codebase before deploy.
-5. **Deploy** — Clerk setup → Neon read-only role for demo → Vercel env vars → `db:push` → demo seed data.
+3. ✅ **Modal + Form abstraction** — render-prop `Modal` (no `isOpen`), `useActionForm`, `ClientFields` shared, `onClose` normalised everywhere (commits 7ed3772, 8e8924c).
+4. ✅ **Secrets audit** — clean: no real client data, NI numbers, or hardcoded secrets in committed codebase (2026-05-14).
+5. **Deploy** — Clerk setup → Neon demo branch (full-write, seeded) → `getCurrentDb()` + `db` param refactor → middleware → sign-in page → demo banner → Vercel env vars + domain alias → `db:push` → seed demo branch.
 
 ### Post-deploy queue
 

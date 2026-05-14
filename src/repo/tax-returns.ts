@@ -1,18 +1,16 @@
 import { and, eq } from 'drizzle-orm';
 
 import { taxReturn } from '@/db/schema';
-import { db } from '@/infra/db';
 import type { UpdateTaxReturnStatusInput } from '@/schemas/tax-return';
-import type { Regime} from '@/types/clients';
+import type { Regime } from '@/types/clients';
 import { Status } from '@/types/clients';
 
 import type { DbOrTx } from './index';
 
-
 export async function insertTaxReturn(
   practiceId: string,
   input: { clientId: string; taxYear: number; regime: Regime },
-  conn: DbOrTx = db,
+  conn: DbOrTx,
 ): Promise<{ id: string }> {
   const [row] = await conn
     .insert(taxReturn)
@@ -32,7 +30,7 @@ export async function taxReturnExists(
   clientId: string,
   taxYear: number,
   regime: Regime,
-  conn: DbOrTx = db,
+  conn: DbOrTx,
 ): Promise<boolean> {
   const result = await conn.query.taxReturn.findFirst({
     where: (table, { eq, and }) =>
@@ -50,7 +48,7 @@ export async function taxReturnExists(
 export async function updateTaxReturnStatus(
   practiceId: string,
   input: UpdateTaxReturnStatusInput,
-  conn: DbOrTx = db,
+  conn: DbOrTx,
 ): Promise<void> {
   const result = await conn
     .update(taxReturn)

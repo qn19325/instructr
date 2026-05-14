@@ -1,14 +1,6 @@
 import type { DeadlineEntry } from '@/types/calendar';
-import type {
-  Client,
-  MTDSubmission,
-  TaxReturn} from '@/types/clients';
-import {
-  MtdSubmissionStatus,
-  Regime,
-  Status,
-  SubmissionType
-} from '@/types/clients';
+import type { Client, MTDSubmission, TaxReturn } from '@/types/clients';
+import { MtdSubmissionStatus, Regime, Status, SubmissionType } from '@/types/clients';
 
 export const mtdSubmissionTypes: SubmissionType[] = [
   SubmissionType.q_1,

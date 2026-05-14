@@ -1,7 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 
 import { checklistItem } from '@/db/schema';
-import { db } from '@/infra/db';
 import type { DocumentType } from '@/types/documents';
 
 import type { DbOrTx } from './index';
@@ -11,7 +10,7 @@ export type ChecklistItemOwnership = { id: string; clientId: string };
 export async function getChecklistItemOwnership(
   practiceId: string,
   id: string,
-  conn: DbOrTx = db,
+  conn: DbOrTx,
 ): Promise<ChecklistItemOwnership | undefined> {
   const item = await conn.query.checklistItem.findFirst({
     where: (table, { eq, and }) => and(eq(table.id, id), eq(table.practiceId, practiceId)),
@@ -25,7 +24,7 @@ export async function insertChecklistItems(
   practiceId: string,
   taxReturnId: string,
   items: { documentType: DocumentType; label: string }[],
-  conn: DbOrTx = db,
+  conn: DbOrTx,
 ): Promise<void> {
   await conn.insert(checklistItem).values(
     items.map((item) => ({
@@ -42,7 +41,7 @@ export async function updateChecklistItemDone(
   practiceId: string,
   id: string,
   done: boolean,
-  conn: DbOrTx = db,
+  conn: DbOrTx,
 ): Promise<void> {
   const res = await conn
     .update(checklistItem)

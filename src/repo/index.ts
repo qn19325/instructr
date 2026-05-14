@@ -1,7 +1,12 @@
-import { db } from '@/infra/db';
+import type * as schema from '@/db/schema';
 
-export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
-export type DbOrTx = typeof db | Tx;
-export function withTransaction<T>(fn: (tx: Tx) => Promise<T>): Promise<T> {
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+
+export type Tx = Parameters<Parameters<PostgresJsDatabase<typeof schema>['transaction']>[0]>[0];
+export type DbOrTx = PostgresJsDatabase<typeof schema> | Tx;
+export function withTransaction<T>(
+  db: PostgresJsDatabase<typeof schema>,
+  fn: (tx: Tx) => Promise<T>,
+): Promise<T> {
   return db.transaction(fn);
 }

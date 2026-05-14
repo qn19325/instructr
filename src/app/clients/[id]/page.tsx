@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { getCurrentPracticeId } from '@/infra/auth';
+import { getCurrentDb } from '@/infra/db';
 import { getClientById } from '@/service/clients';
 
 import AddTaxReturnModal from './AddTaxReturnModal';
@@ -10,8 +11,9 @@ import TaxReturnCard from './TaxReturnCard';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
-  const client = await getClientById(practiceId, id);
+  const client = await getClientById(db, practiceId, id);
 
   if (!client) {
     notFound();

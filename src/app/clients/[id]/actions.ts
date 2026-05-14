@@ -4,6 +4,7 @@ import { ArkErrors } from 'arktype';
 import { revalidatePath } from 'next/cache';
 
 import { getCurrentPracticeId } from '@/infra/auth';
+import { getCurrentDb } from '@/infra/db';
 import { updateChecklistItemSchema, updateInputSchema, updateNotesSchema } from '@/schemas/clients';
 import { taxReturnInputSchema, updateTaxReturnStatusSchema } from '@/schemas/tax-return';
 import * as clientService from '@/service/clients';
@@ -13,8 +14,9 @@ import type { ActionResult } from '@/types/actions';
 import type { Status } from '@/types/clients';
 
 export async function getUploadUrl(checklistItemId: string, mimeType: string, size: number) {
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
-  return documentService.prepareUpload(practiceId, checklistItemId, { mimeType, size });
+  return documentService.prepareUpload(db, practiceId, checklistItemId, { mimeType, size });
 }
 
 export async function recordUpload(
@@ -24,14 +26,15 @@ export async function recordUpload(
   mimeType: string,
   size: number,
 ): Promise<ActionResult> {
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
   try {
-    await documentService.completeUpload(practiceId, checklistItemId, documentKey, {
+    await documentService.completeUpload(db, practiceId, checklistItemId, documentKey, {
       mimeType,
       size,
       originalFileName,
     });
-    await clientService.markItemReceived(practiceId, checklistItemId);
+    await clientService.markItemReceived(db, practiceId, checklistItemId);
     revalidatePath('/clients', 'layout');
     return { success: true };
   } catch {
@@ -40,8 +43,9 @@ export async function recordUpload(
 }
 
 export async function getDocumentDownloadUrl(documentId: string): Promise<string> {
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
-  return documentService.getDocumentDownloadUrl(practiceId, documentId);
+  return documentService.getDocumentDownloadUrl(db, practiceId, documentId);
 }
 
 export async function createTaxReturn(
@@ -60,9 +64,10 @@ export async function createTaxReturn(
     return { success: false, error: 'Validation failed', fieldErrors };
   }
 
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
   try {
-    await clientService.insertTaxReturn(practiceId, parsed);
+    await clientService.insertTaxReturn(db, practiceId, parsed);
     revalidatePath(`/clients/${parsed.clientId}`);
     return { success: true };
   } catch (error) {
@@ -91,9 +96,10 @@ export async function editClient(
     return { success: false, error: 'Validation failed', fieldErrors };
   }
 
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
   try {
-    await clientService.updateClient(practiceId, parsed);
+    await clientService.updateClient(db, practiceId, parsed);
     revalidatePath(`/clients/${parsed.clientId}`);
     return { success: true };
   } catch (error) {
@@ -118,9 +124,10 @@ export async function saveNotes(
     return { success: false, error: 'Validation failed', fieldErrors };
   }
 
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
   try {
-    await clientService.updateClientNotes(practiceId, parsed);
+    await clientService.updateClientNotes(db, practiceId, parsed);
     revalidatePath(`/clients/${clientId}`);
     return { success: true };
   } catch (error) {
@@ -143,12 +150,18 @@ export async function toggleChecklistItem(
     return { success: false, error: 'Validation failed', fieldErrors };
   }
 
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
   try {
     if (done) {
-      await clientService.markItemOutstanding(practiceId, parsed.checklistItemId, parsed.clientId);
+      await clientService.markItemOutstanding(
+        db,
+        practiceId,
+        parsed.checklistItemId,
+        parsed.clientId,
+      );
     } else {
-      await clientService.markItemReceived(practiceId, parsed.checklistItemId, parsed.clientId);
+      await clientService.markItemReceived(db, practiceId, parsed.checklistItemId, parsed.clientId);
     }
     revalidatePath(`/clients/${clientId}`);
     return { success: true };
@@ -172,9 +185,10 @@ export async function changeTaxReturnStatus(
     return { success: false, error: 'Validation failed', fieldErrors };
   }
 
+  const db = await getCurrentDb();
   const practiceId = await getCurrentPracticeId();
   try {
-    await clientService.changeTaxReturnStatus(practiceId, parsed);
+    await clientService.changeTaxReturnStatus(db, practiceId, parsed);
     revalidatePath(`/clients/${clientId}`);
     return { success: true };
   } catch (error) {

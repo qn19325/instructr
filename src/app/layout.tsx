@@ -1,3 +1,4 @@
+import { ClerkProvider } from '@clerk/nextjs';
 import { Geist } from 'next/font/google';
 
 import './globals.css';
@@ -21,11 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="flex h-screen">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-8">{children}</main>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
+        <body className="flex h-screen">
+          <Sidebar />
+          <main className="flex-1 overflow-y-auto bg-slate-50 p-8">{children}</main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

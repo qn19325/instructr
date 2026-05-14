@@ -1,11 +1,9 @@
 import { and, eq } from 'drizzle-orm';
 
 import { client } from '@/db/schema';
-import { db } from '@/infra/db';
 import type { CreateClientInput, UpdateClientInput, UpdateNotesInput } from '@/schemas/clients';
 
 import type { DbOrTx } from './index';
-
 
 const clientWith = {
   taxReturns: {
@@ -16,14 +14,14 @@ const clientWith = {
   },
 } as const;
 
-export async function getClients(practiceId: string, conn: DbOrTx = db) {
+export async function getClients(practiceId: string, conn: DbOrTx) {
   return conn.query.client.findMany({
     where: (table, { eq }) => eq(table.practiceId, practiceId),
     with: clientWith,
   });
 }
 
-export async function getClientById(practiceId: string, id: string, conn: DbOrTx = db) {
+export async function getClientById(practiceId: string, id: string, conn: DbOrTx) {
   const row = await conn.query.client.findFirst({
     where: (table, { eq, and }) => and(eq(table.id, id), eq(table.practiceId, practiceId)),
     with: clientWith,
@@ -34,7 +32,7 @@ export async function getClientById(practiceId: string, id: string, conn: DbOrTx
 export async function insertClient(
   practiceId: string,
   input: CreateClientInput,
-  conn: DbOrTx = db,
+  conn: DbOrTx,
 ): Promise<{ id: string }> {
   const [row] = await conn
     .insert(client)
@@ -53,7 +51,7 @@ export async function insertClient(
 export async function updateClient(
   practiceId: string,
   input: UpdateClientInput,
-  conn: DbOrTx = db,
+  conn: DbOrTx,
 ): Promise<void> {
   const result = await conn
     .update(client)
@@ -75,7 +73,7 @@ export async function updateClient(
 export async function updateClientNotes(
   practiceId: string,
   input: UpdateNotesInput,
-  conn: DbOrTx = db,
+  conn: DbOrTx,
 ): Promise<void> {
   const result = await conn
     .update(client)

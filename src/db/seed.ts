@@ -6,7 +6,6 @@ import { Regime, Status, MtdSubmissionStatus, SubmissionType } from '@/types/cli
 
 import { client, practice, taxReturn, checklistItem, mtdSubmission } from './schema';
 
-
 const SEED_PRACTICE_NAME = 'Warwick & Co';
 const SEED_PRACTICE_ID = 'd47cc867-7ce8-4c60-af87-e9cf3ea7487c';
 
@@ -44,7 +43,13 @@ async function main() {
 
   const [aliceReturn] = await db
     .insert(taxReturn)
-    .values({ practiceId, clientId: alice.id, taxYear: TAX_YEAR, regime: Regime.sa100, status: Status.filed })
+    .values({
+      practiceId,
+      clientId: alice.id,
+      taxYear: TAX_YEAR,
+      regime: Regime.sa100,
+      status: Status.filed,
+    })
     .returning();
 
   await db.insert(checklistItem).values(
@@ -73,7 +78,13 @@ async function main() {
 
   const [benReturn] = await db
     .insert(taxReturn)
-    .values({ practiceId, clientId: ben.id, taxYear: TAX_YEAR, regime: Regime.sa100, status: Status.ready_to_file })
+    .values({
+      practiceId,
+      clientId: ben.id,
+      taxYear: TAX_YEAR,
+      regime: Regime.sa100,
+      status: Status.ready_to_file,
+    })
     .returning();
 
   await db.insert(checklistItem).values(
@@ -102,7 +113,13 @@ async function main() {
 
   const [claraReturn] = await db
     .insert(taxReturn)
-    .values({ practiceId, clientId: clara.id, taxYear: TAX_YEAR, regime: Regime.sa100, status: Status.awaiting_client })
+    .values({
+      practiceId,
+      clientId: clara.id,
+      taxYear: TAX_YEAR,
+      regime: Regime.sa100,
+      status: Status.awaiting_client,
+    })
     .returning();
 
   const sa100Checklist = getDefaultChecklist(Regime.sa100);
@@ -131,7 +148,13 @@ async function main() {
 
   const [emmaReturn] = await db
     .insert(taxReturn)
-    .values({ practiceId, clientId: emma.id, taxYear: TAX_YEAR, regime: Regime.sa100, status: Status.not_started })
+    .values({
+      practiceId,
+      clientId: emma.id,
+      taxYear: TAX_YEAR,
+      regime: Regime.sa100,
+      status: Status.not_started,
+    })
     .returning();
 
   await db.insert(checklistItem).values(
@@ -159,7 +182,13 @@ async function main() {
 
   const [jamesReturn] = await db
     .insert(taxReturn)
-    .values({ practiceId, clientId: james.id, taxYear: TAX_YEAR, regime: Regime.sa100, status: Status.in_progress })
+    .values({
+      practiceId,
+      clientId: james.id,
+      taxYear: TAX_YEAR,
+      regime: Regime.sa100,
+      status: Status.in_progress,
+    })
     .returning();
 
   await db.insert(checklistItem).values(
@@ -187,7 +216,13 @@ async function main() {
 
   const [davidReturn] = await db
     .insert(taxReturn)
-    .values({ practiceId, clientId: david.id, taxYear: TAX_YEAR, regime: Regime.mtd, status: Status.in_progress })
+    .values({
+      practiceId,
+      clientId: david.id,
+      taxYear: TAX_YEAR,
+      regime: Regime.mtd,
+      status: Status.in_progress,
+    })
     .returning();
 
   const mtdChecklist = getDefaultChecklist(Regime.mtd);
@@ -202,10 +237,30 @@ async function main() {
   );
 
   await db.insert(mtdSubmission).values([
-    { practiceId, taxReturnId: davidReturn.id, submissionType: SubmissionType.q_1, status: MtdSubmissionStatus.submitted },
-    { practiceId, taxReturnId: davidReturn.id, submissionType: SubmissionType.q_2, status: MtdSubmissionStatus.overdue },
-    { practiceId, taxReturnId: davidReturn.id, submissionType: SubmissionType.q_3, status: MtdSubmissionStatus.pending },
-    { practiceId, taxReturnId: davidReturn.id, submissionType: SubmissionType.q_4, status: MtdSubmissionStatus.pending },
+    {
+      practiceId,
+      taxReturnId: davidReturn.id,
+      submissionType: SubmissionType.q_1,
+      status: MtdSubmissionStatus.submitted,
+    },
+    {
+      practiceId,
+      taxReturnId: davidReturn.id,
+      submissionType: SubmissionType.q_2,
+      status: MtdSubmissionStatus.overdue,
+    },
+    {
+      practiceId,
+      taxReturnId: davidReturn.id,
+      submissionType: SubmissionType.q_3,
+      status: MtdSubmissionStatus.pending,
+    },
+    {
+      practiceId,
+      taxReturnId: davidReturn.id,
+      submissionType: SubmissionType.q_4,
+      status: MtdSubmissionStatus.pending,
+    },
   ]);
 
   // 7. Rachel Webb — MTD — awaiting_client — Q1 submitted, Q2/Q3/Q4 pending; checklist partial, note
@@ -224,7 +279,13 @@ async function main() {
 
   const [rachelReturn] = await db
     .insert(taxReturn)
-    .values({ practiceId, clientId: rachel.id, taxYear: TAX_YEAR, regime: Regime.mtd, status: Status.awaiting_client })
+    .values({
+      practiceId,
+      clientId: rachel.id,
+      taxYear: TAX_YEAR,
+      regime: Regime.mtd,
+      status: Status.awaiting_client,
+    })
     .returning();
 
   await db.insert(checklistItem).values(
@@ -238,10 +299,30 @@ async function main() {
   );
 
   await db.insert(mtdSubmission).values([
-    { practiceId, taxReturnId: rachelReturn.id, submissionType: SubmissionType.q_1, status: MtdSubmissionStatus.submitted },
-    { practiceId, taxReturnId: rachelReturn.id, submissionType: SubmissionType.q_2, status: MtdSubmissionStatus.pending },
-    { practiceId, taxReturnId: rachelReturn.id, submissionType: SubmissionType.q_3, status: MtdSubmissionStatus.pending },
-    { practiceId, taxReturnId: rachelReturn.id, submissionType: SubmissionType.q_4, status: MtdSubmissionStatus.pending },
+    {
+      practiceId,
+      taxReturnId: rachelReturn.id,
+      submissionType: SubmissionType.q_1,
+      status: MtdSubmissionStatus.submitted,
+    },
+    {
+      practiceId,
+      taxReturnId: rachelReturn.id,
+      submissionType: SubmissionType.q_2,
+      status: MtdSubmissionStatus.pending,
+    },
+    {
+      practiceId,
+      taxReturnId: rachelReturn.id,
+      submissionType: SubmissionType.q_3,
+      status: MtdSubmissionStatus.pending,
+    },
+    {
+      practiceId,
+      taxReturnId: rachelReturn.id,
+      submissionType: SubmissionType.q_4,
+      status: MtdSubmissionStatus.pending,
+    },
   ]);
 }
 
