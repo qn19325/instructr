@@ -1,7 +1,9 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from '@/infra/db';
+
 import { checklistItem } from '@/db/schema';
+import { db } from '@/infra/db';
 import type { DocumentType } from '@/types/documents';
+
 import type { DbOrTx } from './index';
 
 export type ChecklistItemOwnership = { id: string; clientId: string };

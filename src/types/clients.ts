@@ -1,4 +1,4 @@
-import { Document } from './documents';
+import type { Document } from './documents';
 
 export const Status = {
   not_started: 'not_started',

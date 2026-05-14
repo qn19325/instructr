@@ -1,9 +1,12 @@
-import ClientListItem from './ClientListItem';
-import { getClients } from '@/service/clients';
-import { getCurrentPracticeId } from '@/infra/auth';
-import AddClientModal from './AddClientModal';
-import { numberOfClientsWithUnfiled } from '@/logic/tax-return';
 import { cols } from '@/app/clients/clientsGrid';
+import { getCurrentPracticeId } from '@/infra/auth';
+import { numberOfClientsWithUnfiled } from '@/logic/tax-return';
+import { getClients } from '@/service/clients';
+
+import AddClientModal from './AddClientModal';
+import ClientListItem from './ClientListItem';
+
+
 
 export default async function Page() {
   const practiceId = await getCurrentPracticeId();

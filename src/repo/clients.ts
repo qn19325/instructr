@@ -1,8 +1,11 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from '@/infra/db';
+
 import { client } from '@/db/schema';
-import type { DbOrTx } from './index';
+import { db } from '@/infra/db';
 import type { CreateClientInput, UpdateClientInput, UpdateNotesInput } from '@/schemas/clients';
+
+import type { DbOrTx } from './index';
+
 
 const clientWith = {
   taxReturns: {

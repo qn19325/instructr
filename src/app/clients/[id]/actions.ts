@@ -1,15 +1,16 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { ArkErrors } from 'arktype';
+import { revalidatePath } from 'next/cache';
+
 import { getCurrentPracticeId } from '@/infra/auth';
+import { updateChecklistItemSchema, updateInputSchema, updateNotesSchema } from '@/schemas/clients';
+import { taxReturnInputSchema, updateTaxReturnStatusSchema } from '@/schemas/tax-return';
 import * as clientService from '@/service/clients';
 import * as documentService from '@/service/documents';
-import { taxReturnInputSchema, updateTaxReturnStatusSchema } from '@/schemas/tax-return';
-import { updateChecklistItemSchema, updateInputSchema, updateNotesSchema } from '@/schemas/clients';
-import { Status } from '@/types/clients';
-import { ActionResult } from '@/types/actions';
 import { ServiceError } from '@/service/errors';
+import type { ActionResult } from '@/types/actions';
+import type { Status } from '@/types/clients';
 
 export async function getUploadUrl(checklistItemId: string, mimeType: string, size: number) {
   const practiceId = await getCurrentPracticeId();

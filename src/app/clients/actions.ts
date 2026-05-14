@@ -1,11 +1,12 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { ArkErrors } from 'arktype';
-import { clientInputSchema } from '@/schemas/clients';
+import { revalidatePath } from 'next/cache';
+
 import { getCurrentPracticeId } from '@/infra/auth';
+import { clientInputSchema } from '@/schemas/clients';
 import * as clientService from '@/service/clients';
-import { ActionResult } from '@/types/actions';
+import type { ActionResult } from '@/types/actions';
 
 export async function createClient(
   _prevState: ActionResult | null,

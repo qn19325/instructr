@@ -1,7 +1,10 @@
 'use client';
 
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
+
 import { saveNotes } from './actions';
+
+import type { ChangeEvent} from 'react';
 
 type SavingState =
   | { phase: 'idle' }

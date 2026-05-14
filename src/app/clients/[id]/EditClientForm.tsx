@@ -1,10 +1,11 @@
 'use client';
 
-import { editClient } from './actions';
-import FormError from '@/components/FormError';
-import FormActions from '@/components/FormActions';
-import { useActionForm } from '@/hooks/useActionForm';
 import ClientFields from '@/components/ClientFields';
+import FormActions from '@/components/FormActions';
+import FormError from '@/components/FormError';
+import { useActionForm } from '@/hooks/useActionForm';
+
+import { editClient } from './actions';
 
 interface EditClientFormProps {
   clientId: string;

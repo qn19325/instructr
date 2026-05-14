@@ -1,5 +1,5 @@
-import { DocumentType } from '@/types/documents';
 import { Regime } from '@/types/clients';
+import { DocumentType } from '@/types/documents';
 
 type ChecklistDefault = { documentType: DocumentType; label: string };
 

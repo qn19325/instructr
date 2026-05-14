@@ -1,12 +1,15 @@
 'use client';
 
+import { useState, useRef, useTransition, useOptimistic } from 'react';
+
 import ColorDot from '@/components/ColorDot';
 import { ALLOWED_TYPES } from '@/logic/document-validation';
-import { useState, useRef, useTransition, useOptimistic } from 'react';
-import { getDocumentDownloadUrl, toggleChecklistItem } from './actions';
-import { useDocumentUpload } from './useDocumentUpload';
 import { type ChecklistItem } from '@/types/clients';
 import { type Document } from '@/types/documents';
+
+import { getDocumentDownloadUrl, toggleChecklistItem } from './actions';
+import { useDocumentUpload } from './useDocumentUpload';
+
 
 export default function ChecklistItem({
   clientId,
@@ -56,7 +59,7 @@ export default function ChecklistItem({
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) upload(file, item.id);
+          if (file) startTransition(async () => { await upload(file, item.id); });
         }}
         accept={ALLOWED_TYPES.join(',')}
       />

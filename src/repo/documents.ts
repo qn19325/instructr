@@ -1,7 +1,9 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from '@/infra/db';
+
 import { document, r2PendingDelete } from '@/db/schema';
+import { db } from '@/infra/db';
 import type { DocumentMetaData } from '@/types/documents';
+
 import type { DbOrTx } from './index';
 
 export type DocumentRow = { id: string; r2Key: string };

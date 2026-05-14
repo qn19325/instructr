@@ -1,13 +1,14 @@
 'use client';
 
-import { createClient } from './actions';
-import { Regime } from '@/types/clients';
-import FormError from '@/components/FormError';
+import ClientFields from '@/components/ClientFields';
 import FieldError from '@/components/FieldError';
 import FormActions from '@/components/FormActions';
-import { useActionForm } from '@/hooks/useActionForm';
-import ClientFields from '@/components/ClientFields';
+import FormError from '@/components/FormError';
 import { labelClass } from '@/components/formStyles';
+import { useActionForm } from '@/hooks/useActionForm';
+import { Regime } from '@/types/clients';
+
+import { createClient } from './actions';
 
 export default function AddClientForm({ onClose }: { onClose: () => void }) {
   const { formAction, isPending, fieldErrors, formError } = useActionForm(createClient, onClose);

@@ -1,6 +1,7 @@
 'use client';
 
 import Modal from '@/components/Modal';
+
 import AddClientForm from './AddClientForm';
 
 export default function AddClientModal() {

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+
 import { getUploadUrl, recordUpload } from './actions';
-import { UploadState } from './uploadState';
+
+import type { UploadState } from './uploadState';
 
 export function useDocumentUpload() {
   const [uploadState, setUploadState] = useState<UploadState>({ phase: 'idle' });

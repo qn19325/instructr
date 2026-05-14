@@ -1,4 +1,4 @@
-import { Regime } from '@/types/clients';
+import type { Regime } from '@/types/clients';
 
 type RegimeDisplay = {
   textColor: string;

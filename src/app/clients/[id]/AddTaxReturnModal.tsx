@@ -1,8 +1,9 @@
 'use client';
 
 import Modal from '@/components/Modal';
+import type { TaxReturn } from '@/types/clients';
+
 import AddTaxReturnForm from './AddTaxReturnForm';
-import { TaxReturn } from '@/types/clients';
 
 interface AddTaxReturnModalProps {
   clientId: string;

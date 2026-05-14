@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { drainPendingDeletes } from '@/service/documents';
 
 export async function GET(request: Request) {

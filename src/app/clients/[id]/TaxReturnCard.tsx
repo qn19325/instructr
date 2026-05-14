@@ -2,7 +2,8 @@ import RegimeBadge from '@/components/RegimeBadge';
 import StatusBadge from '@/components/StatusBadge';
 import { nextDeadline } from '@/logic/deadlines';
 import { daysTillNextDeadline, formatDate } from '@/logic/tax-return';
-import { TaxReturn } from '@/types/clients';
+import type { TaxReturn } from '@/types/clients';
+
 import ChecklistItem from './ChecklistItem';
 
 interface TaxReturnCardProps {

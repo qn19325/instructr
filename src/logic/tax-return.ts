@@ -1,4 +1,5 @@
-import { Status, Regime, TaxReturn, Client } from '@/types/clients';
+import type { TaxReturn, Client } from '@/types/clients';
+import { Status, Regime } from '@/types/clients';
 
 export function isFiled(taxReturn: TaxReturn): boolean {
   return taxReturn.status === Status.filed;

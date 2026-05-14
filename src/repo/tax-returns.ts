@@ -1,9 +1,13 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from '@/infra/db';
+
 import { taxReturn } from '@/db/schema';
-import { Regime, Status } from '@/types/clients';
-import type { DbOrTx } from './index';
+import { db } from '@/infra/db';
 import type { UpdateTaxReturnStatusInput } from '@/schemas/tax-return';
+import type { Regime} from '@/types/clients';
+import { Status } from '@/types/clients';
+
+import type { DbOrTx } from './index';
+
 
 export async function insertTaxReturn(
   practiceId: string,

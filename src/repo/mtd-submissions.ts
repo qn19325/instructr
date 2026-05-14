@@ -1,6 +1,7 @@
-import { db } from '@/infra/db';
 import { mtdSubmission } from '@/db/schema';
+import { db } from '@/infra/db';
 import { MtdSubmissionStatus, type SubmissionType } from '@/types/clients';
+
 import type { DbOrTx } from './index';
 
 export async function insertMtdSubmissions(

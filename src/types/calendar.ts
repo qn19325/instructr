@@ -1,4 +1,4 @@
-import { Regime, Status, MtdSubmissionStatus, SubmissionType } from './clients';
+import type { Regime, Status, MtdSubmissionStatus, SubmissionType } from './clients';
 
 interface DeadlineEntryBase {
   name: string;

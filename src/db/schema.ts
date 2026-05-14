@@ -10,6 +10,7 @@ import {
   unique,
   index,
 } from 'drizzle-orm/pg-core';
+
 import { Status, Regime, SubmissionType, MtdSubmissionStatus } from '@/types/clients';
 import { DocumentType } from '@/types/documents';
 

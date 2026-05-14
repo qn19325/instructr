@@ -1,9 +1,10 @@
 import { randomUUID } from 'crypto';
+
 import { deleteObject, getDownloadUrl, getUploadUrl } from '@/infra/r2';
+import { validateDocument } from '@/logic/document-validation';
+import { withTransaction } from '@/repo';
 import * as docRepo from '@/repo/documents';
 import * as clientService from '@/service/clients';
-import { withTransaction } from '@/repo';
-import { validateDocument } from '@/logic/document-validation';
 import type { DocumentMetaData, FileMetaData } from '@/types/documents';
 
 // Abandoned presigned URLs (browser crash after prepareUpload, before completeUpload)

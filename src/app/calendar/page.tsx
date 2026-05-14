@@ -1,11 +1,12 @@
-import StatusBadge from '@/components/StatusBadge';
-import RegimeBadge from '@/components/RegimeBadge';
-import { getClients } from '@/service/clients';
-import { getCurrentPracticeId } from '@/infra/auth';
 import Link from 'next/link';
+
+import Chevron from '@/components/Chevron';
+import RegimeBadge from '@/components/RegimeBadge';
+import StatusBadge from '@/components/StatusBadge';
+import { getCurrentPracticeId } from '@/infra/auth';
 import { formatDayOfWeek, formatDayNumber } from '@/logic/calendar';
 import { deadlineSubLine, getDeadlineEntries, groupDeadlinesByMonth } from '@/logic/deadlines';
-import Chevron from '@/components/Chevron';
+import { getClients } from '@/service/clients';
 
 export default async function Page() {
   const practiceId = await getCurrentPracticeId();

@@ -1,4 +1,4 @@
-import { MtdSubmissionStatus, Status } from '@/types/clients';
+import type { MtdSubmissionStatus, Status } from '@/types/clients';
 
 export type StatusDisplay = {
   textColor: string;

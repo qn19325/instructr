@@ -1,5 +1,5 @@
-import { Regime } from '@/types/clients';
 import { regimeDisplay } from '@/components/regimeDisplay';
+import type { Regime } from '@/types/clients';
 
 export default function RegimeBadge({ regime }: { regime: Regime }) {
   return (

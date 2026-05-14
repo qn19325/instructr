@@ -1,7 +1,9 @@
-import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
+
 import './globals.css';
 import Sidebar from '@/components/Sidebar';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Instructr',

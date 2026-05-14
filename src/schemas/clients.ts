@@ -1,4 +1,5 @@
 import { type } from 'arktype';
+
 import { Regime } from '@/types/clients';
 
 export const NI_NUMBER_PATTERN =

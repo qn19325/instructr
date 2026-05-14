@@ -1,6 +1,7 @@
 'use client';
 
 import Modal from '@/components/Modal';
+
 import EditClientForm from './EditClientForm';
 
 interface EditClientModalProps {

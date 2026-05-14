@@ -1,10 +1,11 @@
-import { Status, MtdSubmissionStatus } from '@/types/clients';
 import ColorDot from '@/components/ColorDot';
+import type {
+  StatusDisplay} from '@/components/statusDisplay';
 import {
   taxReturnStatusDisplay,
-  StatusDisplay,
   mtdSubmissionStatusDisplay,
 } from '@/components/statusDisplay';
+import type { Status, MtdSubmissionStatus } from '@/types/clients';
 
 type AnyStatus = Status | MtdSubmissionStatus;
 

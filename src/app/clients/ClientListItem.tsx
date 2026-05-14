@@ -1,16 +1,18 @@
-import { Client, Status } from '@/types/clients';
-import StatusBadge from '@/components/StatusBadge';
 import Link from 'next/link';
+
+import { cols } from '@/app/clients/clientsGrid';
+import Chevron from '@/components/Chevron';
+import RegimeBadge from '@/components/RegimeBadge';
+import StatusBadge from '@/components/StatusBadge';
+import { nextDeadline } from '@/logic/deadlines';
 import {
   daysTillNextDeadline,
   firstUnfiledReturn,
   formatDate,
   mostRecentReturn,
 } from '@/logic/tax-return';
-import { nextDeadline } from '@/logic/deadlines';
-import RegimeBadge from '@/components/RegimeBadge';
-import { cols } from '@/app/clients/clientsGrid';
-import Chevron from '@/components/Chevron';
+import { Status } from '@/types/clients';
+import type { Client} from '@/types/clients';
 
 interface ClientListItemProps {
   client: Client;

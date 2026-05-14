@@ -1,7 +1,8 @@
 'use client';
 
 import { useActionState, useEffect, useRef } from 'react';
-import { ActionResult } from '@/types/actions';
+
+import type { ActionResult } from '@/types/actions';
 
 type ActionFn = (prevState: ActionResult | null, formData: FormData) => Promise<ActionResult>;
 
