@@ -18,7 +18,7 @@ For the `logic/` tier:
 - **Runner:** Vitest.
 - **Location:** co-located. `src/logic/tax-year.ts` sits next to `src/logic/tax-year.test.ts`.
 - **Naming:** `<source>.test.ts`. No `__tests__/` folders, no parallel `tests/` tree.
-- **Test selection:** boundary + equivalence-class. For each exported function, equivalence classes and boundaries are listed in a comment or `describe` block; tests follow that list.
+- **Test selection:** boundary + equivalence-class. For each exported function, nested `describe` blocks name the equivalence classes and boundaries; tests follow that structure.
 - **Clock handling:** functions that depend on "now" take it as a parameter (`(today: Date = new Date())` is acceptable for the default). No `vi.useFakeTimers()` or `vi.setSystemTime()` in `logic/` tests.
 - **No mocks, no fixtures, no DB.** If a `logic/` function cannot be tested without those, the function is in the wrong tier — fix the tier, not the test.
 - **CI:** none at first. Once `logic/` has ~10 tests across three or more files, add a GitHub Actions workflow that runs `npm test` on PR. Pre-commit and pre-push hooks remain off until the suite is large enough to justify the friction.
@@ -120,20 +120,21 @@ No JSDOM environment is needed for `logic/` tests. Add `environment: 'jsdom'` on
 
 ## Style
 
-A `logic/` test file is structured around the source file's exported functions, with equivalence classes documented:
+A `logic/` test file is structured around the source file's exported functions. Nested `describe` blocks name the equivalence classes and boundaries:
 
 ```
 // pseudocode — illustrates the shape, not real code
 describe('functionName', () => {
-  // Equivalence classes:
-  //   - input class A → behaviour 1
-  //   - input class B → behaviour 2
-  // Boundaries:
-  //   - the value where A flips to B
-
-  it('returns behaviour 1 for class A', () => { ... })
-  it('returns behaviour 2 for class B', () => { ... })
-  it('handles the boundary correctly', () => { ... })
+  describe('class A — behaviour 1', () => {
+    it('mid-class representative', () => { ... })
+  })
+  describe('class B — behaviour 2', () => {
+    it('mid-class representative', () => { ... })
+  })
+  describe('boundary between A and B', () => {
+    it('last value of A', () => { ... })
+    it('first value of B', () => { ... })
+  })
 })
 ```
 
