@@ -138,7 +138,27 @@ describe('functionName', () => {
 })
 ```
 
-Tests use fixed dates inline (`new Date('2024-04-06')`), not shared fixtures, not factory functions. The repetition is a feature — each test reads end-to-end without hopping to a helper.
+Primitive inputs — dates, numbers, strings, enum values — appear inline in each test (`new Date('2024-04-06')`, `Status.filed`). Repetition is the point: the test reads end-to-end without hopping to a helper.
+
+Compound domain objects (`Client`, `TaxReturn`, anything with more than ~3 fields) may use a **file-local factory function** whose only job is to fill in type-required fields the test does not care about. Two rules:
+
+1. **File-local, not shared.** The factory lives at the top of the test file that uses it. No cross-file imports. A factory that gets shared starts drifting toward "valid for whatever the last caller needed."
+2. **Every asserted field is an explicit override.** If a test asserts on `status`, that test passes `{ status: ... }` as an override — the factory's default for that field never carries meaning. The factory exists to silence noise, not to encode behaviour.
+
+Shape:
+
+```
+// pseudocode
+function makeReturn(overrides: Partial<TaxReturn> = {}): TaxReturn {
+  return { id: '1', taxYear: 2024, checklist: [], regime: Regime.sa100, status: Status.not_started, ...overrides };
+}
+
+it('returns true when filed', () => {
+  expect(isFiled(makeReturn({ status: Status.filed }))).toBe(true);
+});
+```
+
+The rule the original draft was reaching for — "no shared fixtures, no helpers that hide behaviour" — survives. Inline object literals with a dozen fields each, where eleven are noise, do not.
 
 ## Sequencing
 

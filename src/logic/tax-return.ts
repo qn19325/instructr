@@ -19,6 +19,7 @@ export function formatDeadline(d: Date): string {
 
 export function formatDate(date: Date): string {
   return date.toLocaleDateString('en-GB', {
+    timeZone: 'UTC',
     weekday: 'long',
     day: '2-digit',
     month: 'short',
@@ -40,9 +41,8 @@ export function numberOfClientsWithUnfiled(clients: Client[]): number {
   return filtered.length;
 }
 
-export function daysTillNextDeadline(deadline: Date): number {
-  const date = new Date();
-  const differenceInMs: number = Math.abs(date.getTime() - deadline.getTime());
+export function daysTillNextDeadline(deadline: Date, today: Date = new Date()): number {
+  const differenceInMs: number = deadline.getTime() - today.getTime();
   const millisecondsInDay: number = 1000 * 60 * 60 * 24;
-  return Math.floor(differenceInMs / millisecondsInDay);
+  return Math.trunc(differenceInMs / millisecondsInDay);
 }
