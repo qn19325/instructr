@@ -33,7 +33,7 @@ export async function recordUpload(
       size,
       originalFileName,
     });
-    await clientService.markItemReceived(db, practiceId, checklistItemId);
+    await clientService.setItemDone(db, practiceId, checklistItemId, true);
     revalidatePath('/clients', 'layout');
     return { success: true };
   } catch {
@@ -125,21 +125,13 @@ export async function toggleChecklistItem(
     updateChecklistItemSchema,
     input,
     async (parsed, db, practiceId) => {
-      if (done) {
-        await clientService.markItemOutstanding(
-          db,
-          practiceId,
-          parsed.checklistItemId,
-          parsed.clientId,
-        );
-      } else {
-        await clientService.markItemReceived(
-          db,
-          practiceId,
-          parsed.checklistItemId,
-          parsed.clientId,
-        );
-      }
+      await clientService.setItemDone(
+        db,
+        practiceId,
+        parsed.checklistItemId,
+        done,
+        parsed.clientId,
+      );
       revalidatePath(`/clients/${clientId}`);
     },
     { genericError: 'Failed to toggle checklist item status' },

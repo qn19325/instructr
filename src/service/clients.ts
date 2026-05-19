@@ -65,8 +65,6 @@ export async function insertTaxReturn(
   practiceId: string,
   input: CreateTaxReturnInput,
 ): Promise<void> {
-  const client = await clientRepo.getClientById(practiceId, input.clientId, db);
-  if (!client) throw new ServiceError('Client not found');
   const duplicate = await taxReturnRepo.taxReturnExists(
     practiceId,
     input.clientId,
@@ -108,24 +106,15 @@ export async function assertChecklistItemOwned(
   return item;
 }
 
-export async function markItemReceived(
+export async function setItemDone(
   db: Db,
   practiceId: string,
   itemId: string,
+  done: boolean,
   clientId?: string,
 ): Promise<void> {
   const item = await assertChecklistItemOwned(db, practiceId, itemId, clientId);
-  await checklistRepo.updateChecklistItemDone(practiceId, item.id, true, db);
-}
-
-export async function markItemOutstanding(
-  db: Db,
-  practiceId: string,
-  itemId: string,
-  clientId?: string,
-): Promise<void> {
-  const item = await assertChecklistItemOwned(db, practiceId, itemId, clientId);
-  await checklistRepo.updateChecklistItemDone(practiceId, item.id, false, db);
+  await checklistRepo.updateChecklistItemDone(practiceId, item.id, done, db);
 }
 
 async function createTaxReturnTree(

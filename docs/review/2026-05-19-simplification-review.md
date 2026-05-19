@@ -8,7 +8,7 @@ Each finding tagged **[high]**, **[med]**, or **[low]** by payoff vs risk.
 
 ## Cross-cutting
 
-### Server-action boilerplate — `app/(app)/clients/actions.ts` + `app/(app)/clients/[id]/actions.ts` **[high]**
+### ~~Server-action boilerplate~~ — `app/(app)/clients/actions.ts` + `app/(app)/clients/[id]/actions.ts` **[high]** — DONE 2026-05-19 (commit f192cdb)
 
 Six actions repeat the same five-step shape:
 

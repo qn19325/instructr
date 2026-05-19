@@ -39,7 +39,7 @@ export default function ChecklistItem({
     startTransition(async () => {
       setOptimisticDone((prev) => !prev);
       setToggleError(null);
-      const res = await toggleChecklistItem(item.id, clientId, item.done);
+      const res = await toggleChecklistItem(item.id, clientId, !item.done);
       if (!res.success) setToggleError(res.error);
     });
   }
