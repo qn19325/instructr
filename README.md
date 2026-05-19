@@ -19,20 +19,20 @@ Four-tier layered architecture: `logic/` → `repo/` → `service/` → `app/`, 
 
 ## Commands
 
-| Command                | Purpose                          |
-| ---------------------- | -------------------------------- |
-| `npm run dev`          | Start dev server                 |
-| `npm run dev:demo`     | Start in demo mode               |
-| `npm run build`        | Production build (includes lint + type check) |
-| `npm run lint`         | ESLint                           |
-| `npm run format:check` | Prettier check                   |
-| `npm run format`       | Prettier write                   |
-| `npm run db:generate`  | Generate Drizzle migrations      |
-| `npm run db:migrate`   | Run migrations                   |
-| `npm run db:seed`      | Reseed local database            |
-| `npm test`             | Run tests (watch mode)           |
-| `npm run test:run`     | Run tests once                   |
-| `npm run test:coverage`| Run tests with coverage          |
+| Command                 | Purpose                                       |
+| ----------------------- | --------------------------------------------- |
+| `npm run dev`           | Start dev server                              |
+| `npm run dev:demo`      | Start in demo mode                            |
+| `npm run build`         | Production build (includes lint + type check) |
+| `npm run lint`          | ESLint                                        |
+| `npm run format:check`  | Prettier check                                |
+| `npm run format`        | Prettier write                                |
+| `npm run db:generate`   | Generate Drizzle migrations                   |
+| `npm run db:migrate`    | Run migrations                                |
+| `npm run db:seed`       | Reseed local database                         |
+| `npm test`              | Run tests (watch mode)                        |
+| `npm run test:run`      | Run tests once                                |
+| `npm run test:coverage` | Run tests with coverage                       |
 
 ## Before Committing
 

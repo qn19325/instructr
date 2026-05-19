@@ -1,15 +1,14 @@
 'use server';
 
-import { ArkErrors } from 'arktype';
 import { revalidatePath } from 'next/cache';
 
+import { runFormAction } from '@/app/_lib/runFormAction';
 import { getCurrentPracticeId } from '@/infra/auth';
 import { getCurrentDb } from '@/infra/db';
 import { updateChecklistItemSchema, updateInputSchema, updateNotesSchema } from '@/schemas/clients';
 import { taxReturnInputSchema, updateTaxReturnStatusSchema } from '@/schemas/tax-return';
 import * as clientService from '@/service/clients';
 import * as documentService from '@/service/documents';
-import { ServiceError } from '@/service/errors';
 import type { ActionResult } from '@/types/actions';
 import type { Status } from '@/types/clients';
 
@@ -58,23 +57,15 @@ export async function createTaxReturn(
     regime: formData.get('regime'),
   };
 
-  const parsed = taxReturnInputSchema(input);
-  if (parsed instanceof ArkErrors) {
-    const fieldErrors = Object.fromEntries(parsed.map((err) => [err.path.join('.'), err.message]));
-    return { success: false, error: 'Validation failed', fieldErrors };
-  }
-
-  const db = await getCurrentDb();
-  const practiceId = await getCurrentPracticeId();
-  try {
-    await clientService.insertTaxReturn(db, practiceId, parsed);
-    revalidatePath(`/clients/${parsed.clientId}`);
-    return { success: true };
-  } catch (error) {
-    if (error instanceof ServiceError) return { success: false, error: error.message };
-    console.error('createTaxReturn failed:', error);
-    return { success: false, error: 'Failed to create tax return' };
-  }
+  return runFormAction(
+    taxReturnInputSchema,
+    input,
+    async (parsed, db, practiceId) => {
+      await clientService.insertTaxReturn(db, practiceId, parsed);
+      revalidatePath(`/clients/${parsed.clientId}`);
+    },
+    { genericError: 'Failed to create tax return' },
+  );
 }
 
 export async function editClient(
@@ -90,26 +81,18 @@ export async function editClient(
     phoneNumber: formData.get('phoneNumber'),
   };
 
-  const parsed = updateInputSchema(input);
-  if (parsed instanceof ArkErrors) {
-    const fieldErrors = Object.fromEntries(parsed.map((err) => [err.path.join('.'), err.message]));
-    return { success: false, error: 'Validation failed', fieldErrors };
-  }
-
-  const db = await getCurrentDb();
-  const practiceId = await getCurrentPracticeId();
-  try {
-    await clientService.updateClient(db, practiceId, parsed);
-    revalidatePath(`/clients/${parsed.clientId}`);
-    return { success: true };
-  } catch (error) {
-    if (error instanceof ServiceError) return { success: false, error: error.message };
-    if (error instanceof Error && 'code' in error && error.code === '23505') {
-      return { success: false, error: 'A client with this NI number already exists' };
-    }
-    console.error('editClient failed:', error);
-    return { success: false, error: 'Failed to edit client' };
-  }
+  return runFormAction(
+    updateInputSchema,
+    input,
+    async (parsed, db, practiceId) => {
+      await clientService.updateClient(db, practiceId, parsed);
+      revalidatePath(`/clients/${parsed.clientId}`);
+    },
+    {
+      genericError: 'Failed to edit client',
+      duplicateError: 'A client with this NI number already exists',
+    },
+  );
 }
 
 export async function saveNotes(
@@ -118,23 +101,17 @@ export async function saveNotes(
 ): Promise<ActionResult> {
   const input = { clientId, notes };
 
-  const parsed = updateNotesSchema(input);
-  if (parsed instanceof ArkErrors) {
-    const fieldErrors = Object.fromEntries(parsed.map((err) => [err.path.join('.'), err.message]));
-    return { success: false, error: 'Validation failed', fieldErrors };
-  }
-
-  const db = await getCurrentDb();
-  const practiceId = await getCurrentPracticeId();
-  try {
-    await clientService.updateClientNotes(db, practiceId, parsed);
-    revalidatePath(`/clients/${clientId}`);
-    return { success: true };
-  } catch (error) {
-    console.error('saveNotes failed:', error);
-
-    return { success: false, error: 'Failed to save notes' };
-  }
+  return runFormAction(
+    updateNotesSchema,
+    input,
+    async (parsed, db, practiceId) => {
+      await clientService.updateClientNotes(db, practiceId, parsed);
+      revalidatePath(`/clients/${clientId}`);
+    },
+    {
+      genericError: 'Failed to save notes',
+    },
+  );
 }
 
 export async function toggleChecklistItem(
@@ -144,32 +121,29 @@ export async function toggleChecklistItem(
 ): Promise<ActionResult> {
   const input = { clientId, checklistItemId };
 
-  const parsed = updateChecklistItemSchema(input);
-  if (parsed instanceof ArkErrors) {
-    const fieldErrors = Object.fromEntries(parsed.map((err) => [err.path.join('.'), err.message]));
-    return { success: false, error: 'Validation failed', fieldErrors };
-  }
-
-  const db = await getCurrentDb();
-  const practiceId = await getCurrentPracticeId();
-  try {
-    if (done) {
-      await clientService.markItemOutstanding(
-        db,
-        practiceId,
-        parsed.checklistItemId,
-        parsed.clientId,
-      );
-    } else {
-      await clientService.markItemReceived(db, practiceId, parsed.checklistItemId, parsed.clientId);
-    }
-    revalidatePath(`/clients/${clientId}`);
-    return { success: true };
-  } catch (error) {
-    console.error('toggleChecklistItem failed:', error);
-
-    return { success: false, error: 'Failed to toggle checklist item status' };
-  }
+  return runFormAction(
+    updateChecklistItemSchema,
+    input,
+    async (parsed, db, practiceId) => {
+      if (done) {
+        await clientService.markItemOutstanding(
+          db,
+          practiceId,
+          parsed.checklistItemId,
+          parsed.clientId,
+        );
+      } else {
+        await clientService.markItemReceived(
+          db,
+          practiceId,
+          parsed.checklistItemId,
+          parsed.clientId,
+        );
+      }
+      revalidatePath(`/clients/${clientId}`);
+    },
+    { genericError: 'Failed to toggle checklist item status' },
+  );
 }
 
 export async function changeTaxReturnStatus(
@@ -179,21 +153,13 @@ export async function changeTaxReturnStatus(
 ): Promise<ActionResult> {
   const input = { clientId, taxReturnId, status };
 
-  const parsed = updateTaxReturnStatusSchema(input);
-  if (parsed instanceof ArkErrors) {
-    const fieldErrors = Object.fromEntries(parsed.map((err) => [err.path.join('.'), err.message]));
-    return { success: false, error: 'Validation failed', fieldErrors };
-  }
-
-  const db = await getCurrentDb();
-  const practiceId = await getCurrentPracticeId();
-  try {
-    await clientService.changeTaxReturnStatus(db, practiceId, parsed);
-    revalidatePath(`/clients/${clientId}`);
-    return { success: true };
-  } catch (error) {
-    console.error('changeTaxReturnStatus failed:', error);
-
-    return { success: false, error: 'Failed to update tax return status' };
-  }
+  return runFormAction(
+    updateTaxReturnStatusSchema,
+    input,
+    async (parsed, db, practiceId) => {
+      await clientService.changeTaxReturnStatus(db, practiceId, parsed);
+      revalidatePath(`/clients/${clientId}`);
+    },
+    { genericError: 'Failed to update tax return status' },
+  );
 }

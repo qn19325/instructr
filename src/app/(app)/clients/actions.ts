@@ -1,10 +1,8 @@
 'use server';
 
-import { ArkErrors } from 'arktype';
 import { revalidatePath } from 'next/cache';
 
-import { getCurrentPracticeId } from '@/infra/auth';
-import { getCurrentDb } from '@/infra/db';
+import { runFormAction } from '@/app/_lib/runFormAction';
 import { clientInputSchema } from '@/schemas/clients';
 import * as clientService from '@/service/clients';
 import type { ActionResult } from '@/types/actions';
@@ -22,24 +20,16 @@ export async function createClient(
     regime: formData.get('regime'),
   };
 
-  const parsed = clientInputSchema(input);
-  if (parsed instanceof ArkErrors) {
-    const fieldErrors = Object.fromEntries(parsed.map((err) => [err.path.join('.'), err.message]));
-    return { success: false, error: 'Validation failed', fieldErrors };
-  }
-
-  const db = await getCurrentDb();
-  const practiceId = await getCurrentPracticeId();
-  try {
-    await clientService.insertClient(db, practiceId, parsed);
-    revalidatePath('/clients');
-    return { success: true };
-  } catch (error) {
-    if (error instanceof Error && 'code' in error && error.code === '23505') {
-      return { success: false, error: 'A client with this NI number already exists' };
-    }
-    console.error('createClient failed:', error);
-
-    return { success: false, error: 'Failed to create client' };
-  }
+  return runFormAction(
+    clientInputSchema,
+    input,
+    async (parsed, db, practiceId) => {
+      await clientService.insertClient(db, practiceId, parsed);
+      revalidatePath('/clients');
+    },
+    {
+      genericError: 'Failed to create client',
+      duplicateError: 'A client with this NI number already exists',
+    },
+  );
 }
