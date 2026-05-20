@@ -1,8 +1,14 @@
 import type { DeadlineEntry } from '@/types/calendar';
-import type { Client, MTDSubmission, TaxReturn } from '@/types/clients';
+import type {
+  Client,
+  MTDSubmission,
+  MTDSubmissionQuarters,
+  SubmissionTypeQuarters,
+  TaxReturn,
+} from '@/types/clients';
 import { MtdSubmissionStatus, Regime, Status, SubmissionType } from '@/types/clients';
 
-export const mtdSubmissionTypes: SubmissionTypeQuarters[] = [
+export const mtdSubmissionTypesQuarters: SubmissionTypeQuarters[] = [
   SubmissionType.q_1,
   SubmissionType.q_2,
   SubmissionType.q_3,
@@ -13,7 +19,6 @@ export function sa100Deadline(taxYear: number): Date {
   return new Date(Date.UTC(taxYear + 2, 0, 31));
 }
 
-type SubmissionTypeQuarters = Exclude<SubmissionType, 'eops' | 'final_declaration'>;
 const mtdSubmissionDeadlineValues: Record<
   SubmissionTypeQuarters,
   { monthIdx: number; day: number; nextYear: boolean }
@@ -25,7 +30,7 @@ const mtdSubmissionDeadlineValues: Record<
 };
 
 function isQuarterlyType(s: SubmissionType): s is SubmissionTypeQuarters {
-  return s in mtdSubmissionDeadlineValues;
+  return s !== SubmissionType.eops && s !== SubmissionType.final_declaration;
 }
 
 function mtdDeadlineDate(submissionType: SubmissionTypeQuarters, taxYear: number): Date {
@@ -37,7 +42,7 @@ export function mtdSubmissionDeadlines(taxYear: number): {
   submissionType: SubmissionTypeQuarters;
   deadline: Date;
 }[] {
-  return mtdSubmissionTypes.filter(isQuarterlyType).map((submissionType) => ({
+  return mtdSubmissionTypesQuarters.map((submissionType) => ({
     submissionType,
     deadline: mtdDeadlineDate(submissionType, taxYear),
   }));
@@ -48,7 +53,7 @@ export function nextDeadline(taxReturn: TaxReturn): Date | null {
     return taxReturn.status !== Status.filed ? sa100Deadline(taxReturn.taxYear) : null;
   }
   const unfiledSubmission = firstUnfiledSubmission(taxReturn.submissions);
-  if (!unfiledSubmission || !isQuarterlyType(unfiledSubmission.submissionType)) return null;
+  if (!unfiledSubmission) return null;
   return mtdDeadlineDate(unfiledSubmission.submissionType, taxReturn.taxYear);
 }
 
@@ -57,9 +62,7 @@ export function getDeadlineEntries(clients: Client[]): DeadlineEntry[] {
     return client.taxReturns.flatMap((taxReturn): DeadlineEntry[] => {
       if (taxReturn.regime === Regime.mtd) {
         return taxReturn.submissions
-          .filter((s): s is MTDSubmission & { submissionType: SubmissionTypeQuarters } =>
-            isQuarterlyType(s.submissionType),
-          )
+          .filter((s): s is MTDSubmissionQuarters => isQuarterlyType(s.submissionType))
           .map((submission) => {
             return {
               name: `${client.firstName} ${client.lastName}`,
@@ -90,22 +93,18 @@ export function getDeadlineEntries(clients: Client[]): DeadlineEntry[] {
   return deadlineEntries.sort((a, b) => a.deadline.getTime() - b.deadline.getTime());
 }
 
-export const mtdPeriod: Record<SubmissionType, (y: number) => string> = {
+export const mtdPeriod: Record<SubmissionTypeQuarters, (y: number) => string> = {
   q_1: (y) => `6 Apr - 5 Jul ${y}`,
   q_2: (y) => `6 Jul - 5 Oct ${y}`,
   q_3: (y) => `6 Oct ${y} - 5 Jan ${y + 1}`,
   q_4: (y) => `6 Jan - 5 Apr ${y + 1}`,
-  eops: (y) => `${y}-${y + 1}`,
-  final_declaration: (y) => `${y}-${y + 1}`,
 };
 
-export const mtdLabel: Record<SubmissionType, string> = {
+export const mtdLabel: Record<SubmissionTypeQuarters, string> = {
   q_1: 'Q1',
   q_2: 'Q2',
   q_3: 'Q3',
   q_4: 'Q4',
-  eops: 'EOPS',
-  final_declaration: 'Final Declaration',
 };
 
 export function taxYearShort(taxYear: number): string {
@@ -132,8 +131,9 @@ export function groupDeadlinesByMonth(entries: DeadlineEntry[]): Record<string, 
   }, {});
 }
 
-function firstUnfiledSubmission(submissions: MTDSubmission[]): MTDSubmission | undefined {
-  return submissions
-    .filter((s) => isQuarterlyType(s.submissionType))
-    .find((s) => s.status !== MtdSubmissionStatus.submitted);
+function firstUnfiledSubmission(submissions: MTDSubmission[]): MTDSubmissionQuarters | undefined {
+  return submissions.find(
+    (s): s is MTDSubmissionQuarters =>
+      isQuarterlyType(s.submissionType) && s.status !== MtdSubmissionStatus.submitted,
+  );
 }

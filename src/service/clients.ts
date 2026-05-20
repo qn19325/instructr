@@ -1,7 +1,7 @@
 import type { Db } from '@/infra/db';
 import { getDefaultChecklist } from '@/logic/checklist-defaults';
 import { mapClient } from '@/logic/clients';
-import { mtdSubmissionTypes } from '@/logic/deadlines';
+import { mtdSubmissionTypesQuarters } from '@/logic/deadlines';
 import { currentTaxYear } from '@/logic/tax-year';
 import { type Tx, withTransaction } from '@/repo';
 import * as checklistRepo from '@/repo/checklist-items';
@@ -125,7 +125,7 @@ async function createTaxReturnTree(
   const newTaxReturn = await taxReturnRepo.insertTaxReturn(practiceId, input, tx);
 
   if (input.regime === Regime.mtd) {
-    await mtdRepo.insertMtdSubmissions(practiceId, newTaxReturn.id, mtdSubmissionTypes, tx);
+    await mtdRepo.insertMtdSubmissions(practiceId, newTaxReturn.id, mtdSubmissionTypesQuarters, tx);
   }
   await checklistRepo.insertChecklistItems(
     practiceId,

@@ -46,7 +46,7 @@ src/
 
 - **`logic/`** — imports `types/` only. Pure functions. Trivially unit-testable.
 - **`repo/`** — imports `infra/db` + schema + `types/`. Functions take `practiceId` as an explicit parameter. No business logic; no calls to other repos.
-- **`service/`** — owns the repos for one aggregate. Imports those repos, other aggregates' `service/` (read-only, never inside a shared transaction), `infra/r2`, `logic/`, `types/`. Takes `practiceId` as parameter. Orchestrates.
+- **`service/`** — owns the repos for one aggregate. Imports those repos, other aggregates' `service/` (read-only, never inside a shared transaction), `infra/r2`, `logic/`, `types/`, `schemas/` (input type inference only; runtime validation stays in the action layer). Takes `practiceId` as parameter. Orchestrates.
 - **`app/.../actions.ts`** — imports `service/` only. Resolves `practiceId` once via `infra/auth`. Thin adapter between Next form action and service.
 
 Import direction is one-way: `app → service → repo → infra`. Logic is leaf — anything may import it.
@@ -130,6 +130,8 @@ The leak was a symptom of the wrong boundary. The four tables (clients, tax-retu
 **Why services own multiple repos within their aggregate.** Transactions stay inside one service. No `_withTx` exports. No repo-layer types crossing service boundaries. The cost — a single service file with four repo dependencies — is cheap; the cost of a leaky boundary across the whole codebase is not.
 
 **Why cross-aggregate calls are read-only and tx-free.** Aggregates are defined as consistency boundaries: if two things needed to mutate atomically, they'd be in the same aggregate. Cross-aggregate writes are by definition not atomic; enforcing this in the rule keeps reviewers from reinventing the leak.
+
+**Why input contracts are inferred from `schemas/`, not hand-declared in `types/`.** Arktype schemas already describe the post-validation shape of action inputs. Hand-declaring matching types in `types/` would duplicate that shape and require a compile-time equality check to stay in sync — real cost for real safety, but uncommon at this codebase's scale. The conventional pattern in TS+Next.js codebases is schema-as-source-of-truth: `type X = typeof xSchema.infer` and import that everywhere, including services. The cost is that `service/` depends on arktype transitively; the benefit is no duplication and no pinning ceremony. Revisit if a non-form caller (CLI, internal RPC, scheduled job) needs to invoke services with the same contract — at that point, lifting input types to `types/` and pinning schemas to them becomes worth the cost.
 
 **Why `documents` and `r2-pending-deletes` may live in the same repo file.** The `r2PendingDelete` table exists only to support document deletion — it has no independent domain meaning. Default is one file per table; pair only when one table is a pure implementation detail of another.
 

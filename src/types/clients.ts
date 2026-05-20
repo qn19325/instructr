@@ -22,13 +22,19 @@ export const MtdSubmissionStatus = {
 } as const;
 export type MtdSubmissionStatus = (typeof MtdSubmissionStatus)[keyof typeof MtdSubmissionStatus];
 
-export const SubmissionType = {
+export const SubmissionTypeQuarters = {
   q_1: 'q_1',
   q_2: 'q_2',
   q_3: 'q_3',
   q_4: 'q_4',
+} as const;
+export type SubmissionTypeQuarters =
+  (typeof SubmissionTypeQuarters)[keyof typeof SubmissionTypeQuarters];
+
+export const SubmissionType = {
   eops: 'eops',
   final_declaration: 'final_declaration',
+  ...SubmissionTypeQuarters,
 } as const;
 export type SubmissionType = (typeof SubmissionType)[keyof typeof SubmissionType];
 
@@ -61,11 +67,27 @@ export interface MTDTaxReturn extends TaxReturnBase {
 
 export type TaxReturn = SA100TaxReturn | MTDTaxReturn;
 
-export interface MTDSubmission {
-  submissionType: SubmissionType;
+interface MTDSubmissionBase {
   id: string;
   status: MtdSubmissionStatus;
 }
+
+export interface MTDSubmissionQuarters extends MTDSubmissionBase {
+  submissionType: SubmissionTypeQuarters;
+}
+
+export interface MTDSubmissionEops extends MTDSubmissionBase {
+  submissionType: typeof SubmissionType.eops;
+}
+
+export interface MTDSubmissionFinalDeclaration extends MTDSubmissionBase {
+  submissionType: typeof SubmissionType.final_declaration;
+}
+
+export type MTDSubmission =
+  | MTDSubmissionQuarters
+  | MTDSubmissionEops
+  | MTDSubmissionFinalDeclaration;
 
 export interface ChecklistItem {
   id: string;
