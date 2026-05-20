@@ -9,15 +9,13 @@ export function currentTaxYear(today: Date = new Date()): number {
     day: 'numeric',
   }).formatToParts(today);
 
-  const year = Number(parts.find((p) => p.type === 'year')!.value);
-  const month = Number(parts.find((p) => p.type === 'month')!.value);
-  const day = Number(parts.find((p) => p.type === 'day')!.value);
+  const { year, month, day } = Object.fromEntries(parts.map((p) => [p.type, p.value]));
 
   if (
-    month < TAX_YEAR_DEADLINE_MONTH_NUM ||
-    (month === TAX_YEAR_DEADLINE_MONTH_NUM && day <= TAX_YEAR_DEADLINE_DAY_NUM)
+    Number(month) < TAX_YEAR_DEADLINE_MONTH_NUM ||
+    (Number(month) === TAX_YEAR_DEADLINE_MONTH_NUM && Number(day) <= TAX_YEAR_DEADLINE_DAY_NUM)
   ) {
-    return year - 1;
+    return Number(year) - 1;
   }
-  return year;
+  return Number(year);
 }

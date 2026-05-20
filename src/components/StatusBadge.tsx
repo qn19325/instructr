@@ -15,12 +15,13 @@ interface StatusBadgeProps {
 }
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
+  const { textColor, bgColor, dotColor, label } = statusDisplay[status];
   return (
     <div
-      className={`flex h-fit w-fit rounded px-1.5 py-0.5 text-xs font-semibold ${statusDisplay[status].textColor} ${statusDisplay[status].bgColor}`}
+      className={`flex h-fit w-fit rounded px-1.5 py-0.5 text-xs font-semibold ${textColor} ${bgColor}`}
     >
-      <ColorDot color={statusDisplay[status].dotColor} className="my-auto mr-1" />
-      <div>{statusDisplay[status].label}</div>
+      <ColorDot color={dotColor} className="my-auto mr-1" />
+      <div>{label}</div>
     </div>
   );
 }

@@ -13,5 +13,5 @@ export async function GET(request: Request) {
 
   const res = await drainPendingDeletes(db);
 
-  return NextResponse.json({ ...res });
+  return NextResponse.json(res);
 }

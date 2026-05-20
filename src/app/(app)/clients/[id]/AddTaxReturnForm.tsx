@@ -35,26 +35,24 @@ export default function AddTaxReturnForm({
       <form action={formAction}>
         <fieldset disabled={isPending} className="space-y-4">
           <input type="hidden" name="clientId" value={clientId} />
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass} htmlFor="taxYear">
-                Year
-              </label>
-              <select className={inputClass} name="taxYear" id="taxYear">
-                {years.map((year) => (
-                  <option
-                    key={year}
-                    value={year}
-                    disabled={existingTaxReturns.some(
-                      (r) => r.taxYear === year && r.regime === selectedRegime,
-                    )}
-                  >
-                    {year}/{String(year + 1).slice(2)}
-                  </option>
-                ))}
-              </select>
-              <FieldError fieldErrors={fieldErrors} name="taxYear" />
-            </div>
+          <div>
+            <label className={labelClass} htmlFor="taxYear">
+              Year
+            </label>
+            <select className={inputClass} name="taxYear" id="taxYear">
+              {years.map((year) => (
+                <option
+                  key={year}
+                  value={year}
+                  disabled={existingTaxReturns.some(
+                    (r) => r.taxYear === year && r.regime === selectedRegime,
+                  )}
+                >
+                  {year}/{String(year + 1).slice(2)}
+                </option>
+              ))}
+            </select>
+            <FieldError fieldErrors={fieldErrors} name="taxYear" />
           </div>
           <fieldset>
             <legend className={labelClass}>Regime</legend>

@@ -58,7 +58,7 @@ Two lines wrapped in an async function around a hard-coded constant. Fine as a p
 
 ## `src/logic/`
 
-### `logic/tax-year.ts` **[low]**
+### ~~`logic/tax-year.ts`~~ **[low]** — DONE 2026-05-20
 
 `currentTaxYear` uses `Intl.DateTimeFormat.formatToParts` then `.find(p => p.type === 'year')!.value` three times. The non-null assertions are load-bearing — if the locale ever changes, this breaks silently. Either:
 
@@ -68,7 +68,7 @@ const { year, month, day } = Object.fromEntries(parts.map((p) => [p.type, p.valu
 
 or destructure once. Same correctness, less repetition, no `!`.
 
-### `logic/tax-return.ts` **[low]**
+### ~~`logic/tax-return.ts`~~ **[low]** — DONE 2026-05-20
 
 - `numberOfClientsWithUnfiled` — assigns `filtered` then returns `.length`. One expression: `clients.filter(c => !!firstUnfiledReturn(c.taxReturns)).length`.
 - `formatDeadline` is defined but I don't see it called anywhere — confirm and delete.
@@ -104,7 +104,7 @@ Collapses to `document: item.document ?? undefined`. Same for the row-types them
 
 ## `src/service/`
 
-### `service/clients.ts` **[high]**
+### ~~`service/clients.ts`~~ **[high]** — DONE 2026-05-20 (commit a14d633)
 
 - `markItemReceived` and `markItemOutstanding` differ only in the boolean passed to `updateChecklistItemDone`. Collapse to one `setItemDone(db, practiceId, itemId, done, clientId?)`. The action layer (`toggleChecklistItem`) then loses its `if (done) ... else ...` branch and just calls `setItemDone(..., !done, ...)`.
 - `updateClient` does `getClientById` purely to check existence, then `updateClient`. The repo already throws on zero rows updated. Drop the pre-fetch — saves a query and removes the race window between check and update.
@@ -132,7 +132,7 @@ Empty `class ServiceError extends Error {}` — fine, but the file is one line. 
 
 `withTransaction(db, fn) => db.transaction(fn)` is a 1-line passthrough. Callers can use `db.transaction(...)` directly — same ergonomics. The wrapper would earn its keep if it added e.g. retry logic or tracing; it doesn't.
 
-### `repo/clients.test.ts` **[med]**
+### ~~`repo/clients.test.ts`~~ **[med]** — DONE 2026-05-20 (commit b15f190)
 
 Every test rebuilds a practice row inline (`insert(schema.practice).values({name}).returning(...)` — 4 lines × ~10 tests). Pull into a `createPractice()` helper next to `clearDB`. Removes ~40 lines, makes each test's _unique_ setup visible.
 
@@ -146,7 +146,7 @@ Several tests also re-`insert(schema.client)` directly when the goal is "have a 
 
 Three separate `useEffect`s gated on `isOpen`: Escape handler, body-scroll lock, focus trap. They could be one effect with one early return, or stay split for clarity — judgment call. The focus-trap selector string is long; extracting to a `FOCUSABLE_SELECTOR` constant at module top documents intent.
 
-### `components/StatusBadge.tsx` **[low]**
+### ~~`components/StatusBadge.tsx`~~ **[low]** — DONE 2026-05-20
 
 `statusDisplay[status].X` evaluated four times in the JSX. Destructure once:
 
@@ -154,7 +154,7 @@ Three separate `useEffect`s gated on `isOpen`: Escape handler, body-scroll lock,
 const { textColor, bgColor, dotColor, label } = statusDisplay[status];
 ```
 
-### `components/Avatar.tsx` **[low]**
+### ~~`components/Avatar.tsx`~~ **[low]** — DONE 2026-05-20
 
 `pickColor` is fine. Minor: `colorClasses[Math.abs(hash) % colorClasses.length]` — `hash` is already int32; `Math.abs(-2147483648)` returns the same negative number. Astronomically unlikely to hit, but `((hash % len) + len) % len` is the safe modulo.
 
@@ -164,7 +164,7 @@ const { textColor, bgColor, dotColor, label } = statusDisplay[status];
 
 ### `app/(app)/clients/[id]/AddTaxReturnForm.tsx` **[med]**
 
-- The outer `<div className="grid grid-cols-2 gap-4">` wraps exactly one child (the Year select). Remove the wrapper.
+- ~~The outer `<div className="grid grid-cols-2 gap-4">` wraps exactly one child (the Year select). Remove the wrapper.~~ — DONE 2026-05-20
 - The radio `onChange` handler is duplicated across both radios:
 
   ```ts
@@ -186,7 +186,7 @@ const { textColor, bgColor, dotColor, label } = statusDisplay[status];
 
 Manual `useState` + try/catch for what is fundamentally a server action call. Could use `useActionForm` for consistency with the other forms — or, if the save-without-form UX is intentional, leave it but add a `useActionState` wrapper to remove the manual phase machine. Minor.
 
-### `app/(app)/api/cron/r2-cleanup/route.ts` **[low]**
+### ~~`app/(app)/api/cron/r2-cleanup/route.ts`~~ **[low]** — DONE 2026-05-20
 
 `return NextResponse.json({ ...res })` — `res` is already a plain object, spread is a no-op: `NextResponse.json(res)`.
 
@@ -207,7 +207,7 @@ Manual `useState` + try/catch for what is fundamentally a server action call. Co
 
 ## `src/db/`
 
-### `db/seed.ts` **[high]**
+### ~~`db/seed.ts`~~ **[high]** — DONE 2026-05-20 (commit a14d633)
 
 ~300 lines, but it's the same 4-step recipe (insert client → insert taxReturn → insert checklist → optionally insert mtdSubmissions) repeated seven times. A data-driven version is realistically ~80 lines:
 
@@ -233,10 +233,10 @@ Already noted above. Common test refactors:
 
 ## Summary — biggest payoffs
 
-1. **Action helper** to dedupe the 6 `actions.ts` blocks.
-2. **`setItemDone(..., done)`** to collapse two service methods + the toggle branch.
-3. **Drop the redundant `getClientById` pre-checks** in `service/clients.ts`.
-4. **Data-driven seed**.
-5. **Test helpers** for practice/client creation.
+1. ~~**Action helper** to dedupe the 6 `actions.ts` blocks.~~ — DONE 2026-05-19 (commit 4807f3f)
+2. ~~**`setItemDone(..., done)`** to collapse two service methods + the toggle branch.~~ — DONE 2026-05-20 (commit a14d633)
+3. ~~**Drop the redundant `getClientById` pre-checks** in `service/clients.ts`.~~ — DONE 2026-05-20 (commit a14d633)
+4. ~~**Data-driven seed**.~~ — DONE 2026-05-20 (commit a14d633)
+5. ~~**Test helpers** for practice/client creation.~~ — DONE 2026-05-20 (commit b15f190)
 
 Everything else is small-grain cleanup — worth picking up opportunistically rather than as a dedicated pass.

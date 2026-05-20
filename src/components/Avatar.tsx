@@ -16,7 +16,8 @@ function pickColor(seed: string): string {
   for (let i = 0; i < seed.length; i++) {
     hash = (hash * 31 + seed.charCodeAt(i)) | 0;
   }
-  return colorClasses[Math.abs(hash) % colorClasses.length];
+  const len = colorClasses.length;
+  return colorClasses[((hash % len) + len) % len];
 }
 
 interface AvatarProps {

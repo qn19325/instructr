@@ -7,7 +7,6 @@ import {
   daysTillNextDeadline,
   firstUnfiledReturn,
   formatDate,
-  formatDeadline,
   isFiled,
   mostRecentReturn,
   numberOfClientsWithUnfiled,
@@ -94,14 +93,6 @@ describe('firstUnfiledReturn', () => {
       const first = makeReturn({ id: '1', status: Status.not_started });
       const second = makeReturn({ id: '2', status: Status.in_progress });
       expect(firstUnfiledReturn([first, second])).toBe(first);
-    });
-  });
-});
-
-describe('formatDeadline', () => {
-  describe('standard date', () => {
-    it('formats as dd/mm/yyyy in en-GB', () => {
-      expect(formatDeadline(new Date(Date.UTC(2025, 2, 5)))).toEqual('05/03/2025');
     });
   });
 });
