@@ -1,9 +1,6 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
 import { describe, afterAll, beforeEach, it, expect } from 'vitest';
 
 import * as schema from '@/db/schema';
-import type { DbOrTx } from '@/repo/index';
 import type { CreateClientInput } from '@/schemas/clients';
 import { Regime } from '@/types/clients';
 
@@ -14,24 +11,7 @@ import {
   updateClient,
   updateClientNotes,
 } from './clients';
-
-const databaseUrl = process.env.DATABASE_URL_TEST;
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL_TEST is not set');
-}
-
-const sqlConnection = postgres(databaseUrl);
-const db = drizzle({ client: sqlConnection, schema, casing: 'snake_case' });
-
-async function clearDB(database: DbOrTx) {
-  await database.delete(schema.document);
-  await database.delete(schema.checklistItem);
-  await database.delete(schema.r2PendingDelete);
-  await database.delete(schema.mtdSubmission);
-  await database.delete(schema.taxReturn);
-  await database.delete(schema.client);
-  await database.delete(schema.practice);
-}
+import { clearDB, createTestDb } from './test-utils';
 
 function makeCreateClientInput(): CreateClientInput {
   return {
@@ -49,22 +29,28 @@ function makeClientDbRow() {
   return { firstName, lastName, niNumber, email, phoneNumber };
 }
 
+const { db, sql } = createTestDb();
+
+let practiceId: string;
+
 beforeEach(async () => {
   await clearDB(db);
+
+  const [row] = await db
+    .insert(schema.practice)
+    .values({ name: 'Test Practice' })
+    .returning({ id: schema.practice.id });
+
+  practiceId = row.id;
 });
 
 afterAll(async () => {
-  await sqlConnection.end();
+  await sql.end();
 });
 
 describe('getClients', () => {
   describe('with a valid practiceId', () => {
     it('returns the clients', async () => {
-      const [practiceRow] = await db
-        .insert(schema.practice)
-        .values({ name: 'Test Practice' })
-        .returning({ id: schema.practice.id });
-      const practiceId = practiceRow.id;
       const client = { practiceId, ...makeClientDbRow() };
       await db.insert(schema.client).values(client).returning({ id: schema.client.id });
 
@@ -75,18 +61,15 @@ describe('getClients', () => {
   });
   describe('with an invalid practiceId', () => {
     it('returns an empty array', async () => {
-      const [rowOne] = await db
-        .insert(schema.practice)
-        .values({ name: 'Test Practice' })
-        .returning({ id: schema.practice.id });
-      const practiceIdOne = rowOne.id;
       const [rowTwo] = await db
         .insert(schema.practice)
         .values({ name: 'Test Practice' })
         .returning({ id: schema.practice.id });
       const practiceIdTwo = rowTwo.id;
-      const client = { practiceId: practiceIdOne, ...makeClientDbRow() };
-      await db.insert(schema.client).values(client).returning({ id: schema.client.id });
+      await db
+        .insert(schema.client)
+        .values({ practiceId: practiceId, ...makeClientDbRow() })
+        .returning({ id: schema.client.id });
 
       const res = await getClients(practiceIdTwo, db);
       expect(res).toStrictEqual([]);
@@ -97,11 +80,6 @@ describe('getClients', () => {
 describe('getClientById', () => {
   describe('with a valid practiceId and clientId', () => {
     it('returns the client', async () => {
-      const [practiceRow] = await db
-        .insert(schema.practice)
-        .values({ name: 'Test Practice' })
-        .returning({ id: schema.practice.id });
-      const practiceId = practiceRow.id;
       const clientId = await db
         .insert(schema.client)
         .values({ practiceId, ...makeClientDbRow() })
@@ -113,11 +91,6 @@ describe('getClientById', () => {
   });
   describe('when client belongs to a different practice', () => {
     it('returns null', async () => {
-      const [rowOne] = await db
-        .insert(schema.practice)
-        .values({ name: 'Test Practice' })
-        .returning({ id: schema.practice.id });
-      const practiceIdOne = rowOne.id;
       const [rowTwo] = await db
         .insert(schema.practice)
         .values({ name: 'Test Practice' })
@@ -125,7 +98,7 @@ describe('getClientById', () => {
       const practiceIdTwo = rowTwo.id;
       const clientId = await db
         .insert(schema.client)
-        .values({ practiceId: practiceIdOne, ...makeClientDbRow() })
+        .values({ practiceId: practiceId, ...makeClientDbRow() })
         .returning({ id: schema.client.id });
 
       const res = await getClientById(practiceIdTwo, clientId[0].id, db);
@@ -136,24 +109,12 @@ describe('getClientById', () => {
 
 describe('insertClient', () => {
   it('returns an id', async () => {
-    const [row] = await db
-      .insert(schema.practice)
-      .values({ name: 'Test Practice' })
-      .returning({ id: schema.practice.id });
-    const practiceId = row.id;
-
     const res = await insertClient(practiceId, makeCreateClientInput(), db);
 
     expect(res.id.length).toBeGreaterThan(0);
   });
 
   it('with 2 clients with same niNumber and practiceId throws', async () => {
-    const [row] = await db
-      .insert(schema.practice)
-      .values({ name: 'Test Practice' })
-      .returning({ id: schema.practice.id });
-    const practiceId = row.id;
-
     await insertClient(practiceId, makeCreateClientInput(), db);
 
     await expect(async () => {
@@ -162,18 +123,13 @@ describe('insertClient', () => {
   });
 
   it('with 2 clients with same niNumber but different practiceId succeeds', async () => {
-    const [rowOne] = await db
-      .insert(schema.practice)
-      .values({ name: 'Test Practice' })
-      .returning({ id: schema.practice.id });
-    const practiceIdOne = rowOne.id;
     const [rowTwo] = await db
       .insert(schema.practice)
       .values({ name: 'Test Practice' })
       .returning({ id: schema.practice.id });
     const practiceIdTwo = rowTwo.id;
 
-    await insertClient(practiceIdOne, makeCreateClientInput(), db);
+    await insertClient(practiceId, makeCreateClientInput(), db);
     const res = await insertClient(practiceIdTwo, makeCreateClientInput(), db);
     expect(res.id.length).toBeGreaterThan(0);
   });
@@ -182,11 +138,6 @@ describe('insertClient', () => {
 describe('updateClient', () => {
   describe('with a valid client', () => {
     it('mutates the row', async () => {
-      const [practiceRow] = await db
-        .insert(schema.practice)
-        .values({ name: 'Test Practice' })
-        .returning({ id: schema.practice.id });
-      const practiceId = practiceRow.id;
       const [clientRow] = await db
         .insert(schema.client)
         .values({ practiceId, ...makeClientDbRow() })
@@ -204,12 +155,6 @@ describe('updateClient', () => {
   });
   describe('with an invalid client', () => {
     it('throws', async () => {
-      const [practiceRow] = await db
-        .insert(schema.practice)
-        .values({ name: 'Test Practice' })
-        .returning({ id: schema.practice.id });
-      const practiceId = practiceRow.id;
-
       await expect(
         updateClient(
           practiceId,
@@ -224,11 +169,6 @@ describe('updateClient', () => {
 describe('updateClientNotes', () => {
   describe('with a valid client', () => {
     it('mutates the row', async () => {
-      const [practiceRow] = await db
-        .insert(schema.practice)
-        .values({ name: 'Test Practice' })
-        .returning({ id: schema.practice.id });
-      const practiceId = practiceRow.id;
       const [clientRow] = await db
         .insert(schema.client)
         .values({ practiceId, ...makeClientDbRow() })
@@ -242,12 +182,6 @@ describe('updateClientNotes', () => {
   });
   describe('with an invalid client', () => {
     it('throws', async () => {
-      const [practiceRow] = await db
-        .insert(schema.practice)
-        .values({ name: 'Test Practice' })
-        .returning({ id: schema.practice.id });
-      const practiceId = practiceRow.id;
-
       await expect(
         updateClientNotes(
           practiceId,
@@ -259,11 +193,6 @@ describe('updateClientNotes', () => {
   });
   describe('with null', () => {
     it('clears notes', async () => {
-      const [practiceRow] = await db
-        .insert(schema.practice)
-        .values({ name: 'Test Practice' })
-        .returning({ id: schema.practice.id });
-      const practiceId = practiceRow.id;
       const [clientRow] = await db
         .insert(schema.client)
         .values({ practiceId, ...makeClientDbRow(), notes: 'Existing notes' })
